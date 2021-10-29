@@ -1,10 +1,19 @@
 # CCG-Spider?
 
 # Data preparation
+## AOI
+Download eg [GADM](https://gadm.org/download_country_v3.html) and export only level-0 as `GeoPackage`.
+
 ## HRSL
 Download from [HDX](https://data.humdata.org/dataset/highresolutionpopulationdensitymaps-ken).
 ```
 gdal_translate -co COMPRESS=LZW ken_2020.tif hrsl_comp.tif
+```
+
+## Blank template raster
+To use in generating rasters from vectors:
+```
+gdalwarp -tr 0.01 0.01 hrsl.tif blank.tif
 ```
 
 ## GRID3 settlements

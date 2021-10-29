@@ -1,0 +1,16 @@
+- name: pop
+  type: raster
+  file: data/blank.tif
+  operation: sum
+  decimals: 0
+  fix:
+    minimum: 0
+
+- name: grid
+  type: vector
+  raster_like: data/blank.tif
+  operation: distance
+  file: data/grid.gpkg
+  decimals: 2
+  fix:
+    factor: 1/100
