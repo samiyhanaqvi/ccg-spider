@@ -47,3 +47,11 @@ osmfilter kenya.o5m --keep="water=lake =river =oxbow =lagoon =reservoir" | ogr2o
 osmfilter kenya.o5m --keep="water=lake =river =oxbow =lagoon =reservoir" | ogr2ogr -oo CONFIG_FILE=$GDAL_CONFIG_FILE -select water -f GPKG rivers.gpkg /vsistdin/ lines
 osmfilter kenya.o5m --keep="natural=wood landuse=forest" | ogr2ogr -oo CONFIG_FILE=$GDAL_CONFIG_FILE -select natural,landuse -f GPKG forest.gpkg /vsistdin/ multipolygons
 ```
+
+## Extracting features
+Edit feature definitions in `features.yml` and then
+
+```
+pip install -r requirements.txt
+./run.py data/aoi.gpkg outputs/locs.gpkg
+```
