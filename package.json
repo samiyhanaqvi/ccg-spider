@@ -1,29 +1,30 @@
 {
-  "name": "app",
+  "name": "ccg-spider",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/main.js",
-  "scripts": {},
+  "description": "# Data preparation ## AOI Download eg [GADM](https://gadm.org/download_country_v3.html) and export only level-0 as `GeoPackage`.",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carderne/ccg-spider.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "lite-server": "^2.6.1",
-    "cssnano": "^4.1.10",
-    "eslint": "^7.25.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-react": "^7.23.2",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "postcss": "^8.2.12",
-    "postcss-cli": "^8.3.1",
-    "prettier": "^2.2.1"
+  "bugs": {
+    "url": "https://github.com/carderne/ccg-spider/issues"
   },
-  "dependencies": {
-    "autoprefixer": "^10.2.5",
-    "tailwindcss": "^2.1.2"
+  "homepage": "https://github.com/carderne/ccg-spider#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "lite-server": "^2.6.1",
+    "prettier": "^2.4.1"
   }
 }

@@ -17,15 +17,27 @@ const app = new Vue({
   el: "#sidebar",
   data: {
     message: "Hello Vue!",
+    road: 50,
+  },
+  watch: {
+    road: function (val) {
+      this.debouncedUpdate();
+    },
+  },
+  created: function () {
+    this.debouncedUpdate = _.debounce(this.update, 500);
+  },
+  methods: {
+    update: function() {
+      updateHex({road: this.road});
+    },
   },
 });
 
-hex.features.forEach((ft, i) => {
-  const props = ft.properties;
-  hex.features[i].properties.Cost = props.Grid;
-});
 
+let mapLoaded = false;
 map.on("load", () => {
+  mapLoaded = true;
   map.addSource("hex", {
     type: "geojson",
     data: hex,
@@ -49,12 +61,15 @@ map.on("load", () => {
       "fill-outline-color": "hsl(0, 0%, 11%)",
     },
   });
+  updateHex({ road: app.road });
+});
 
-  setTimeout(() => {
+const updateHex = ({ road }) => {
+  if (mapLoaded) {
     hex.features.forEach((ft, i) => {
       const props = ft.properties;
-      hex.features[i].properties.Cost = props.Cost + 200;
+      hex.features[i].properties.Cost = (props.Grid * road) / 100;
     });
     map.getSource("hex").setData(hex);
-  }, 1000);
-});
+  }
+};
