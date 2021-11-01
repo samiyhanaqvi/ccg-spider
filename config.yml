@@ -1,0 +1,36 @@
+aoi: data/aoi.gpkg
+hex_res: 5
+raster_like: data/blank_proj.tif
+
+features:
+  - name: Pop
+    type: raster
+    file: data/hrsl.tif
+    operation: sum
+    decimals: 0
+    fix:
+      minimum: 0
+
+  - name: Grid
+    type: vector
+    operation: distance
+    file: data/grid.gpkg
+    decimals: 2
+    fix:
+      factor: 0.001
+
+  - name: Lakes
+    type: vector
+    operation: distance
+    file: data/lakes.gpkg
+    decimals: 3
+    fix:
+      factor: 0.001
+
+  - name: Roads
+    type: vector
+    operation: distance
+    file: data/roads.gpkg
+    decimals: 3
+    fix:
+      factor: 0.001
