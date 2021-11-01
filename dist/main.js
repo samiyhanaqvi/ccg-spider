@@ -17,10 +17,18 @@ const app = new Vue({
   el: "#sidebar",
   data: {
     message: "Hello Vue!",
+    grid: 20,
     road: 50,
+    pop: 3,
   },
   watch: {
+    grid: function (val) {
+      this.debouncedUpdate();
+    },
     road: function (val) {
+      this.debouncedUpdate();
+    },
+    pop: function (val) {
       this.debouncedUpdate();
     },
   },
@@ -28,12 +36,11 @@ const app = new Vue({
     this.debouncedUpdate = _.debounce(this.update, 500);
   },
   methods: {
-    update: function() {
-      updateHex({road: this.road});
+    update: function () {
+      updateHex({ grid: this.grid, road: this.road, pop: this.pop });
     },
   },
 });
-
 
 let mapLoaded = false;
 map.on("load", () => {
@@ -58,17 +65,26 @@ map.on("load", () => {
         "hsl(0, 100%, 23%)",
       ],
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],
-      "fill-outline-color": "hsl(0, 0%, 11%)",
+      "fill-outline-color": [
+        "interpolate",
+        ["linear"],
+        ["zoom"],
+        5,
+        "hsla(0, 0%, 11%, 0)",
+        13,
+        "hsl(0, 0%, 11%)",
+      ],
     },
   });
-  updateHex({ road: app.road });
+  updateHex({ grid: app.grid, road: app.road, pop: app.pop });
 });
 
-const updateHex = ({ road }) => {
+const updateHex = ({ grid, road, pop }) => {
   if (mapLoaded) {
     hex.features.forEach((ft, i) => {
       const props = ft.properties;
-      hex.features[i].properties.Cost = (props.Grid * road) / 100;
+      hex.features[i].properties.Cost =
+        (props.Grid * grid + props.Roads * road + props.Pop * pop) / 100;
     });
     map.getSource("hex").setData(hex);
   }

@@ -13,10 +13,18 @@
     <body>
         <div id="sidebar">
             <p>{{ message }}</p>
-            <div class="slidecontainer">
-                <input type="range" min="1" max="100" class="slider" v-model="road">
+            <div>
+                Grid: <input type="range" min="1" max="100" class="slider" v-model="grid">
+                <p>{{ grid }}</p>
             </div>
-            <p>{{ road }}</p>
+            <div>
+                Road: <input type="range" min="1" max="100" class="slider" v-model="road">
+                <p>{{ road }}</p>
+            </div>
+            <div>
+                Pop: <input type="range" min="0" max="10" class="slider" v-model="pop">
+                <p>{{ pop }}</p>
+            </div>
         </div>
         <div id="map"></div>
         <script type="module" src="./main.js"></script>
