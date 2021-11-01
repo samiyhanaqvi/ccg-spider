@@ -1,4 +1,6 @@
-/* global mapboxgl Vue */
+/* global mapboxgl Vue hex */
+
+import hex from "./hex.js";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiY2FyZGVybmUiLCJhIjoiY2puMXN5cnBtNG53NDN2bnhlZ3h4b3RqcCJ9.eNjrtezXwvM7Ho1VSxo06w";
@@ -10,29 +12,49 @@ const map = new mapboxgl.Map({
   zoom: 6,
 });
 
-var app = new Vue({
+// eslint-disable-next-line no-unused-vars
+const app = new Vue({
   el: "#sidebar",
   data: {
     message: "Hello Vue!",
   },
 });
 
+hex.features.forEach((ft, i) => {
+  const props = ft.properties;
+  hex.features[i].properties.Cost = props.Grid;
+});
+
 map.on("load", () => {
-  map.addSource("earthquakes", {
+  map.addSource("hex", {
     type: "geojson",
-    // Use a URL for the value for the `data` property.
-    data: "https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson",
+    data: hex,
   });
 
   map.addLayer({
-    id: "earthquakes-layer",
-    type: "circle",
-    source: "earthquakes",
+    id: "hex",
+    type: "fill",
+    source: "hex",
     paint: {
-      "circle-radius": 8,
-      "circle-stroke-width": 2,
-      "circle-color": "red",
-      "circle-stroke-color": "white",
+      "fill-color": [
+        "interpolate",
+        ["linear"],
+        ["get", "Cost"],
+        0,
+        "hsl(0, 29%, 93%)",
+        400,
+        "hsl(0, 100%, 23%)",
+      ],
+      "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],
+      "fill-outline-color": "hsl(0, 0%, 11%)",
     },
   });
+
+  setTimeout(() => {
+    hex.features.forEach((ft, i) => {
+      const props = ft.properties;
+      hex.features[i].properties.Cost = props.Cost + 200;
+    });
+    map.getSource("hex").setData(hex);
+  }, 1000);
 });

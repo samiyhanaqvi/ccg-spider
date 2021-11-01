@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import json
 from pathlib import Path
 
 from typer import Typer, echo, Option
@@ -16,7 +17,6 @@ cfg_default = Path(os.path.dirname(__file__)) / "config.yml"
 
 @app.command()
 def feat(
-    geom_out: Path,
     config: Path = Option(cfg_default, help="Path to config file"),
 ):
     """Add features."""
@@ -69,7 +69,8 @@ def feat(
         tolerance=0.001,
         preserve_topology=False,
     )
-    geom.to_file(geom_out, driver="GeoJSON")
+    with open("dist/hex.js", "w") as f:
+        print("export default", geom.to_json(), file=f)
 
 
 if __name__ == "__main__":
