@@ -2,6 +2,11 @@
 data/*
 raw/*
 output/*
+notebooks/*
+
+# JavaScript
+/node_modules
+package-lock.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -15,7 +20,6 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/

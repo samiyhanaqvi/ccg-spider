@@ -1,0 +1,12 @@
+body {
+    display: flex;
+    height: 100vh;
+}
+
+#sidebar {
+    width: 300px;
+}
+
+#map {
+    flex-grow: 1;
+}
