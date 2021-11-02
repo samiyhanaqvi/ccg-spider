@@ -3,7 +3,7 @@ hex_res: 5
 raster_like: data/blank_proj.tif
 
 features:
-  - name: Pop
+  - name: pop
     type: raster
     file: data/hrsl.tif
     operation: sum
@@ -11,7 +11,7 @@ features:
     fix:
       minimum: 0
 
-  - name: Grid
+  - name: grid
     type: vector
     operation: distance
     file: data/grid.gpkg
@@ -19,7 +19,7 @@ features:
     fix:
       factor: 0.001
 
-  - name: Lakes
+  - name: lake
     type: vector
     operation: distance
     file: data/lakes.gpkg
@@ -27,7 +27,7 @@ features:
     fix:
       factor: 0.001
 
-  - name: Roads
+  - name: road
     type: vector
     operation: distance
     file: data/roads.gpkg

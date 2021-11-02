@@ -12,18 +12,10 @@
     </head>
     <body>
         <div id="sidebar">
-            <p>{{ message }}</p>
-            <div>
-                Grid: <input type="range" min="1" max="100" class="slider" v-model="grid">
-                <p>{{ grid }}</p>
-            </div>
-            <div>
-                Road: <input type="range" min="1" max="100" class="slider" v-model="road">
-                <p>{{ road }}</p>
-            </div>
-            <div>
-                Pop: <input type="range" min="0" max="10" class="slider" v-model="pop">
-                <p>{{ pop }}</p>
+            <h1>Welcome to Spider</h1>
+            <div v-for="(val, key) in pars">
+                {{ val.name }} <input type="range" min="val.min" max="val.max" class="slider" v-model="val.val">
+                <p>{{ val.val }}</p>
             </div>
         </div>
         <div id="map"></div>
