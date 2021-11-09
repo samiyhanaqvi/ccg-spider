@@ -18,9 +18,10 @@ const app = new Vue({
   data: {
     message: "Hello Vue!",
     pars: {
-      grid: { name: "Grid", min: 1, max: 100, val: 20 },
-      road: { name: "Road", min: 1, max: 100, val: 50 },
-      pop: { name: "Pop", min: 0, max: 10, val: 3 },
+      grid: { name: "Grid cost per km", min: 1, max: 100, val: 20 },
+      road: { name: "Road cost per km", min: 1, max: 100, val: 50 },
+      pop: { name: "Cost per person", min: 0, max: 10, val: 3 },
+      lake_dist: { name: "Max lake dist", min: 0, max: 100, val: 3 },
     },
   },
   watch: {
@@ -85,7 +86,7 @@ map.on("load", () => {
 
 const updateHex = (vals) => {
   if (mapLoaded) {
-    const keys = Object.keys(vals);
+    const keys = Object.keys(vals).filter((k) => k != "lake_dist");
     hex.features.forEach((ft, i) => {
       const props = ft.properties;
       let cost = 0;
@@ -94,4 +95,5 @@ const updateHex = (vals) => {
     });
     map.getSource("hex").setData(hex);
   }
+  map.setFilter("hex", ["<", ["get", "lake"], parseInt(vals["lake_dist"])]);
 };
