@@ -2,31 +2,50 @@
 
 import hex from "./hex.js";
 
+const toObj = (arr) =>
+  arr.reduce((acc, el) => ((acc[el.name] = el.val), acc), {});
+
 // eslint-disable-next-line no-unused-vars
 const app = new Vue({
   el: "#sidebar",
   data: {
     message: "Hello Vue!",
-    pars: {
-      grid: {
-        name: "Grid cost per km",
+    pars: [
+      {
+        name: "grid",
+        label: "Grid cost per km",
         min: 1,
         max: 1000,
         val: 200,
         unit: "$",
       },
-      road: {
-        name: "Road cost per km",
+      {
+        name: "road",
+        label: "Road cost per km",
         min: 1,
         max: 1000,
         val: 500,
         unit: "$",
       },
-      pop: { name: "Cost per person", min: 0, max: 10, val: 3, unit: "$" },
-    },
-    filts: {
-      lake: { name: "Max lake dist", min: 0, max: 10, val: 3, unit: "km" },
-    },
+      {
+        name: "pop",
+        label: "Cost per person",
+        min: 0,
+        max: 10,
+        val: 3,
+        unit: "$",
+      },
+    ],
+    filts: [
+      {
+        name: "lake",
+        label: "Max lake dist",
+        min: 0,
+        max: 10,
+        val: 3,
+        unit: "km",
+      },
+    ],
   },
   watch: {
     parVals: function () {
@@ -38,16 +57,10 @@ const app = new Vue({
   },
   computed: {
     parVals: function () {
-      return Object.keys(this.pars).reduce(
-        (acc, key) => ((acc[key] = this.pars[key].val), acc),
-        {}
-      );
+      return toObj(this.pars);
     },
     filtVals: function () {
-      return Object.keys(this.filts).reduce(
-        (acc, key) => ((acc[key] = this.filts[key].val), acc),
-        {}
-      );
+      return toObj(this.filts);
     },
   },
   created: function () {
@@ -109,7 +122,7 @@ map.on("load", () => {
 const objective = (props, parVals) => {
   return (
     props.grid * parVals.grid +
-    props.road * parVals.grid +
+    props.road * parVals.road +
     props.pop * parVals.pop
   );
 };
