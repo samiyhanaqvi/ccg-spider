@@ -18,12 +18,12 @@ const app = new Vue({
   data: {
     message: "Hello Vue!",
     pars: {
-      grid: { name: "Grid cost per km", min: 1, max: 1000, val: 200 },
-      road: { name: "Road cost per km", min: 1, max: 1000, val: 500 },
-      pop: { name: "Cost per person", min: 0, max: 10, val: 3 },
+      grid: { name: "Grid cost per km", min: 1, max: 1000, val: 200, unit: "$" },
+      road: { name: "Road cost per km", min: 1, max: 1000, val: 500, unit: "$" },
+      pop: { name: "Cost per person", min: 0, max: 10, val: 3, unit: "$" },
     },
     filts: {
-      lake: { name: "Max lake dist", min: 0, max: 10, val: 3 },
+      lake: { name: "Max lake dist", min: 0, max: 10, val: 3, unit: "km" },
     },
   },
   watch: {
