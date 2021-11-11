@@ -2,24 +2,26 @@
 
 import hex from "./hex.js";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiY2FyZGVybmUiLCJhIjoiY2puMXN5cnBtNG53NDN2bnhlZ3h4b3RqcCJ9.eNjrtezXwvM7Ho1VSxo06w";
-
-const map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/mapbox/light-v10",
-  center: [37.7, 0.31],
-  zoom: 6,
-});
-
 // eslint-disable-next-line no-unused-vars
 const app = new Vue({
   el: "#sidebar",
   data: {
     message: "Hello Vue!",
     pars: {
-      grid: { name: "Grid cost per km", min: 1, max: 1000, val: 200, unit: "$" },
-      road: { name: "Road cost per km", min: 1, max: 1000, val: 500, unit: "$" },
+      grid: {
+        name: "Grid cost per km",
+        min: 1,
+        max: 1000,
+        val: 200,
+        unit: "$",
+      },
+      road: {
+        name: "Road cost per km",
+        min: 1,
+        max: 1000,
+        val: 500,
+        unit: "$",
+      },
       pop: { name: "Cost per person", min: 0, max: 10, val: 3, unit: "$" },
     },
     filts: {
@@ -56,6 +58,15 @@ const app = new Vue({
       updateHex(this.parVals, this.filtVals);
     },
   },
+});
+
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiY2FyZGVybmUiLCJhIjoiY2puMXN5cnBtNG53NDN2bnhlZ3h4b3RqcCJ9.eNjrtezXwvM7Ho1VSxo06w";
+const map = new mapboxgl.Map({
+  container: "map",
+  style: "mapbox://styles/mapbox/light-v10",
+  center: [37.7, 0.31],
+  zoom: 6,
 });
 
 let mapLoaded = false;
