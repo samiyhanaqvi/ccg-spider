@@ -5,6 +5,17 @@ import hex from "./hex.js";
 const toObj = (arr) =>
   arr.reduce((acc, el) => ((acc[el.name] = el.val), acc), {});
 
+Vue.component("slider", {
+  props: ["obj"],
+  template: `
+  <div>
+    <div>{{ obj.label }}: {{ obj.val }} {{ obj.unit }}</div>
+    <input type="range" :min="obj.min" :max="obj.max"
+           class="slider" v-model="obj.val">
+  </div>
+  `,
+});
+
 // eslint-disable-next-line no-unused-vars
 const app = new Vue({
   el: "#sidebar",

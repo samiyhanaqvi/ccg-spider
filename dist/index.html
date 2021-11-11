@@ -14,15 +14,9 @@
         <div id="sidebar">
             <h1>Spider</h1>
             <h2>Economic/social parameters</h2>
-            <div v-for="(val, key) in pars">
-                <div>{{ val.name }}: {{ val.val }} {{ val.unit }}</div>
-                <input type="range" :min="val.min" :max="val.max" class="slider" v-model="val.val">
-            </div>
+            <slider v-for="obj in pars" :obj="obj"></slider>
             <h2>Filters</h2>
-            <div v-for="(val, key) in filts">
-                <div>{{ val.name }}: {{ val.val }} {{ val.unit }}</div>
-                <input type="range" :min="val.min" :max="val.max" class="slider" v-model="val.val">
-            </div>
+            <slider v-for="obj in filts" :obj="obj"></slider>
         </div>
         <div id="map"></div>
         <script type="module" src="./main.js"></script>
