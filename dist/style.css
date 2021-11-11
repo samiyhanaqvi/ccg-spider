@@ -7,6 +7,10 @@ body {
     width: 300px;
 }
 
+#sidebar > div {
+    margin: 2rem 0;
+}
+
 #map {
     flex-grow: 1;
 }

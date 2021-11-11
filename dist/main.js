@@ -18,21 +18,32 @@ const app = new Vue({
   data: {
     message: "Hello Vue!",
     pars: {
-      grid: { name: "Grid cost per km", min: 1, max: 100, val: 20 },
-      road: { name: "Road cost per km", min: 1, max: 100, val: 50 },
+      grid: { name: "Grid cost per km", min: 1, max: 1000, val: 200 },
+      road: { name: "Road cost per km", min: 1, max: 1000, val: 500 },
       pop: { name: "Cost per person", min: 0, max: 10, val: 3 },
-      lake_dist: { name: "Max lake dist", min: 0, max: 100, val: 3 },
+    },
+    filts: {
+      lake: { name: "Max lake dist", min: 0, max: 10, val: 3 },
     },
   },
   watch: {
-    vals: function () {
+    parVals: function () {
+      this.debouncedUpdate();
+    },
+    filtVals: function () {
       this.debouncedUpdate();
     },
   },
   computed: {
-    vals: function () {
+    parVals: function () {
       return Object.keys(this.pars).reduce(
         (acc, key) => ((acc[key] = this.pars[key].val), acc),
+        {}
+      );
+    },
+    filtVals: function () {
+      return Object.keys(this.filts).reduce(
+        (acc, key) => ((acc[key] = this.filts[key].val), acc),
         {}
       );
     },
@@ -42,7 +53,7 @@ const app = new Vue({
   },
   methods: {
     update: function () {
-      updateHex(this.vals);
+      updateHex(this.parVals, this.filtVals);
     },
   },
 });
@@ -66,7 +77,7 @@ map.on("load", () => {
         ["get", "Cost"],
         0,
         "hsl(0, 29%, 93%)",
-        40000,
+        400000,
         "hsl(0, 100%, 23%)",
       ],
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],
@@ -81,19 +92,27 @@ map.on("load", () => {
       ],
     },
   });
-  updateHex(app.vals);
+  updateHex(app.parVals, app.filtVals);
 });
 
-const updateHex = (vals) => {
+const objective = (props, parVals) => {
+  return (
+    props.grid * parVals.grid +
+    props.road * parVals.grid +
+    props.pop * parVals.pop
+  );
+};
+
+const filter = (filtVals) => {
+  return ["all", ["<", ["get", "lake"], parseInt(filtVals["lake"])]];
+};
+
+const updateHex = (parVals, filtVals) => {
   if (mapLoaded) {
-    const keys = Object.keys(vals).filter((k) => k != "lake_dist");
     hex.features.forEach((ft, i) => {
-      const props = ft.properties;
-      let cost = 0;
-      keys.forEach((k) => (cost += props[k] * vals[k]));
-      hex.features[i].properties.Cost = cost;
+      hex.features[i].properties.Cost = objective(ft.properties, parVals);
     });
     map.getSource("hex").setData(hex);
+    map.setFilter("hex", filter(filtVals));
   }
-  map.setFilter("hex", ["<", ["get", "lake"], parseInt(vals["lake_dist"])]);
 };

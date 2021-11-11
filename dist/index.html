@@ -12,10 +12,16 @@
     </head>
     <body>
         <div id="sidebar">
-            <h1>Welcome to Spider</h1>
+            <h1>Spider</h1>
+            <h2>Economic/social parameters</h2>
             <div v-for="(val, key) in pars">
-                {{ val.name }} <input type="range" min="val.min" max="val.max" class="slider" v-model="val.val">
-                <p>{{ val.val }}</p>
+                <div>{{ val.name }}: {{ val.val }}</div>
+                <input type="range" :min="val.min" :max="val.max" class="slider" v-model="val.val">
+            </div>
+            <h2>Filters</h2>
+            <div v-for="(val, key) in filts">
+                <div>{{ val.name }}: {{ val.val }}</div>
+                <input type="range" :min="val.min" :max="val.max" class="slider" v-model="val.val">
             </div>
         </div>
         <div id="map"></div>
