@@ -11,7 +11,7 @@ features:
     fix:
       minimum: 0
 
-  - name: grid
+  - name: grid_dist
     type: vector
     operation: distance
     file: data/grid.gpkg
@@ -19,7 +19,15 @@ features:
     fix:
       factor: 0.001
 
-  - name: lake
+  - name: lake_dist
+    type: vector
+    operation: distance
+    file: data/victoria.gpkg
+    decimals: 3
+    fix:
+      factor: 0.001
+
+  - name: water_dist
     type: vector
     operation: distance
     file: data/lakes.gpkg
@@ -27,10 +35,26 @@ features:
     fix:
       factor: 0.001
 
-  - name: road
+  - name: road_dist
     type: vector
     operation: distance
     file: data/roads.gpkg
+    decimals: 3
+    fix:
+      factor: 0.001
+
+  - name: urban_dist
+    type: vector
+    operation: distance
+    file: data/towns.gpkg
+    decimals: 3
+    fix:
+      factor: 0.001
+
+  - name: city_dist
+    type: vector
+    operation: distance
+    file: data/cities.gpkg
     decimals: 3
     fix:
       factor: 0.001

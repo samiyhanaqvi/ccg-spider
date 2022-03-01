@@ -23,6 +23,14 @@ From [CIESEN](https://academiccommons.columbia.edu/doi/10.7916/d8-3tn0-1686).
 
 Convert to `GeoPackage` in QGIS.
 
+## Urban towns
+Zonal stats HRSL into GRID3 `bua` settlements. Filter for `pop_sum > 10000`.
+
+## Distance from urban towns to big cities
+NB: Not used currently.
+
+Manually draw Nairobi and Mombasa. Use `dist_city.py` to get distances.
+
 ## OSM
 ### Download
 Download `.osm.pbf` from [Geofabrik](https://download.geofabrik.de/africa.html).
@@ -50,12 +58,22 @@ osmfilter kenya.o5m --keep="water=lake =river =oxbow =lagoon =reservoir" | ogr2o
 osmfilter kenya.o5m --keep="natural=wood landuse=forest" | ogr2ogr -oo CONFIG_FILE=$GDAL_CONFIG_FILE -select natural,landuse -f GPKG forest.gpkg /vsistdin/ multipolygons
 ```
 
+Lake Victoria is manually extracted to `victoria.gpkg`.
+
+## Precipitation
+Using [WorldClim data](https://www.worldclim.org/data/worldclim21.html) for precipitation at 30s spatial resolution.
+
+Merge the monthly rasters with gdal:
+```bash
+
+```
+
 # Extracting features
-Edit feature definitions in `features.yml` and then
+Edit feature definitions in `config.yml` and then
 
 ```
 pip install -r requirements.txt
-./run.py dist/data.geojson
+./run.py
 ```
 
 # Web development
