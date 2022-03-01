@@ -8,6 +8,7 @@ import yaml
 import geopandas as gpd
 
 from spider.features import add_raster_layer, add_vector_layer, fix_column, create_hex
+from spider.model import Assumptions, Town, run_model
 
 app = Typer()
 
@@ -16,17 +17,20 @@ cfg_default = Path(os.path.dirname(__file__)) / "config.yml"
 
 @app.command()
 def feat(
+    file: Path,
     config: Path = Option(cfg_default, help="Path to config file"),
-    existing: Path = Option(None, help="Path to existing hex if existing"),
     overwrite: bool = Option(False),
+    js: bool = Option(False),
 ) -> None:
     """Add features."""
+
+    file = Path(file)
 
     with config.open() as f:
         cfg = yaml.safe_load(f)
 
-    if existing:
-        geom = gpd.read_file(existing)
+    if file.exists():
+        geom = gpd.read_file(file)
     else:
         geom = gpd.read_file(cfg["aoi"])
         geom = create_hex(geom, cfg["hex_res"])
@@ -69,7 +73,7 @@ def feat(
                     else None,
                 )
 
-    if not existing:
+    if not file.exists():
         geom = geom.reset_index()
     geom["fid"] = geom.index
     geom = geom.dropna(axis=0, subset=["geometry"])
@@ -78,10 +82,31 @@ def feat(
         tolerance=0.001,
         preserve_topology=False,
     )
-    with open("dist/hex.js", "w") as f:
-        print("export default", geom.to_json(), file=f)
+    if js:
+        with open("dist/hex.js", "w") as f:
+            print("export default", geom.to_json(), file=f)
 
-    geom.to_file("hex.gpkg")
+    geom.to_file(file)
+
+
+@app.command()
+def model(
+    in_file: Path,
+    out_file: Path,
+    sample: bool = Option(False),
+):
+    gdf = gpd.read_file(in_file)
+    ass = Assumptions(mg_cost_pkw=2000)
+
+    if sample:
+        row = gdf.sample(1).iloc[0]
+        town = Town.from_row(row)
+        run_model(town, ass, verbose=True)
+
+    else:
+        col = [run_model(Town.from_row(row), ass) for idx, row in gdf.iterrows()]
+        gdf["profit"] = col
+        gdf.to_file(out_file)
 
 
 if __name__ == "__main__":

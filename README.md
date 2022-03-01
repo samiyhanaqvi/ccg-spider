@@ -6,13 +6,13 @@ Download eg [GADM](https://gadm.org/download_country_v3.html) and export only le
 
 ## HRSL
 Download from [HDX](https://data.humdata.org/dataset/highresolutionpopulationdensitymaps-ken).
-```
+```bash
 gdal_translate -co COMPRESS=LZW ken_2020.tif hrsl_comp.tif
 ```
 
 ## Blank template raster
 To use in generating rasters from vectors:
-```
+```bash
 gdalwarp -tr 0.005 0.005 hrsl.tif blank.tif
 gdalwarp -t_srs EPSG:4088 blank.tif blank_proj.tif
 ```
@@ -36,7 +36,7 @@ Manually draw Nairobi and Mombasa. Use `dist_city.py` to get distances.
 Download `.osm.pbf` from [Geofabrik](https://download.geofabrik.de/africa.html).
 
 ### Convert
-```
+```bash
 osmconvert kenya.osm.pbf -o=kenya.o5m
 ```
 
@@ -49,7 +49,7 @@ attributes=...,power,voltage
 ```
 
 Get desired features:
-```
+```bash
 export GDAL_CONFIG_FILE=/usr/share/gdal/osmconf.ini
 osmfilter kenya.o5m --keep="power=line" | ogr2ogr -oo CONFIG_FILE=$GDAL_CONFIG_FILE -select power,voltage -f GPKG grid.gpkg /vsistdin/ lines
 osmfilter kenya.o5m --keep="highway=motorway =trunk =primary =secondary =tertiary" | ogr2ogr -oo CONFIG_FILE=$GDAL_CONFIG_FILE -select highway -f GPKG roads.gpkg /vsistdin/ lines
@@ -69,15 +69,22 @@ gdal_calc.py -A *.tif --calc="numpy.average(A, axis=0)" --outfile=precip_mean.ti
 ```
 
 # Extracting features
-Edit feature definitions in `config.yml` and then
-
-```
+First install requuirements:
+```bash
 pip install -r requirements.txt
-./run.py
+```
+Edit feature definitions in `config.yml` and then:
+```bash
+./run.py feat processed/hex.gpkg
+```
+
+Run model
+```bash
+./run.py model processed/hex.gpkg processed/out.gpkg
 ```
 
 # Web development
-```
+```bash
 npm install
 lite-server --baseDir=dist
 ```
