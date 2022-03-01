@@ -65,7 +65,7 @@ Using [WorldClim data](https://www.worldclim.org/data/worldclim21.html) for prec
 
 Merge the monthly rasters with gdal:
 ```bash
-
+gdal_calc.py -A *.tif --calc="numpy.average(A, axis=0)" --outfile=precip_mean.tif
 ```
 
 # Extracting features

@@ -69,7 +69,8 @@ def feat(
                     else None,
                 )
 
-    geom = geom.reset_index()
+    if not existing:
+        geom = geom.reset_index()
     geom["fid"] = geom.index
     geom = geom.dropna(axis=0, subset=["geometry"])
 

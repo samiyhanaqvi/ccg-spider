@@ -11,6 +11,14 @@ features:
     fix:
       minimum: 0
 
+  - name: precip
+    type: raster
+    file: data/precip.tif
+    operation: mean
+    decimals: 0
+    fix:
+      minimum: 0
+
   - name: grid_dist
     type: vector
     operation: distance
