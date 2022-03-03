@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+import sys
 
 from typer import Typer, echo, Option
 import yaml
@@ -11,6 +12,8 @@ from spider.features import add_raster_layer, add_vector_layer, fix_column, crea
 from spider.model import Assumptions, Town, run_model
 
 app = Typer()
+
+sys.path.append(os.path.dirname(__file__))
 
 cfg_default = Path(os.path.dirname(__file__)) / "config.yml"
 
@@ -104,8 +107,11 @@ def model(
         run_model(town, ass, verbose=True)
 
     else:
-        col = [run_model(Town.from_row(row), ass) for idx, row in gdf.iterrows()]
-        gdf["profit"] = col
+        cols = [run_model(Town.from_row(row), ass) for idx, row in gdf.iterrows()]
+        gdf["profit"] = [c.profit for c in cols]
+        gdf["gov_costs"] = [c.gov_costs for c in cols]
+        gdf["social"] = [c.social for c in cols]
+        gdf["farm_type"] = [c.farm_type for c in cols]
         gdf.to_file(out_file)
 
 

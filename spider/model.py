@@ -345,6 +345,19 @@ def run_model(town, ass, verbose=False):
 
     else:
         if farm_type:
-            return max(0, profit)
+            return Result(
+                profit=max(0, profit),
+                gov_costs=max(0, gov_costs),
+                social=max(0, total_social_benefit),
+                farm_type=farm_type,
+            )
         else:
-            return 0
+            return Result(0, 0, 0, "none")
+
+
+@define
+class Result:
+    profit: float
+    gov_costs: float
+    social: float
+    farm_type: str
