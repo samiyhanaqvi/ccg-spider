@@ -71,16 +71,16 @@ gdal_calc.py -A *.tif --calc="numpy.average(A, axis=0)" --outfile=precip_mean.ti
 # Extracting features
 First install requuirements:
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 Edit feature definitions in `config.yml` and then:
 ```bash
-./run.py feat processed/hex.gpkg
+./bin/run.py feat processed/hex.gpkg
 ```
 
 Run model
 ```bash
-./run.py model processed/hex.gpkg processed/out.gpkg
+./bin/run.py model processed/hex.gpkg processed/out.gpkg
 ```
 
 # Web development
