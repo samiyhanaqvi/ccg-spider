@@ -55,12 +55,13 @@ class Town:
         )
 
 
-def npv(yrs, r):
-    """USD/yr"""
-    tot = 0
-    for i in range(yrs):
-        tot += 1 / ((1 + r) ** i)
-    return tot
+@define
+class Result:
+    farm_type: str
+    fish_output: float
+    profit: float
+    gov_costs: float
+    social: float
 
 
 def get_farm_type(town, ass):
@@ -73,6 +74,31 @@ def get_farm_type(town, ass):
         return "pond"
     else:
         return None
+
+
+def constrain_output(town, ass):
+    """ton/yr"""
+    farm_type = get_farm_type(town, ass)
+    max_from_farm = 0
+    if farm_type == "cage":
+        max_from_farm = 1000
+    elif farm_type == "pond":
+        max_from_farm = town.precip * 20
+
+    labor = town.hhs * ass.labor_per_hh  # number of laborers available
+    labor_needed = 3 if farm_type == "cage" else 1  # worker/ton/yr
+    max_fish_from_labor = labor // labor_needed  # ton/yr
+
+    fish_output = min(ass.max_fish_output, max_fish_from_labor, max_from_farm)  # ton/yr
+    return fish_output
+
+
+def npv(yrs, r):
+    """USD/yr"""
+    tot = 0
+    for i in range(yrs):
+        tot += 1 / ((1 + r) ** i)
+    return tot
 
 
 def get_road_type(town, ass, farm_type, fish_output):
@@ -170,15 +196,6 @@ def get_farm_cap_cost_annual(ass, farm_type):
     return farm_annual
 
 
-def get_fish_output(town, ass, farm_type):
-    """ton/yr"""
-    labor = town.hhs * ass.labor_per_hh  # number of laborers available
-    labor_needed = 3 if farm_type == "cage" else 1  # worker/ton/yr
-    max_fish_from_labor = labor // labor_needed  # ton/yr
-    fish_output = min(max_fish_from_labor, ass.max_fish_output)  # ton/yr
-    return fish_output
-
-
 def get_transport_costs(town):
     """USD/ton/yr"""
     urban_to_city = town.city_dist - town.urban_dist
@@ -263,6 +280,8 @@ def get_social_benefit(town):
 
 
 def display(
+    farm_type,
+    fish_output,
     gov_costs,
     gov_annual,
     total_revenue,
@@ -270,9 +289,9 @@ def display(
     town,
     hhs,
     total_social_benefit,
-    farm_type,
 ):
     print(f"Farm type: {farm_type}")
+    print(f"Fish output: {fish_output}")
     print()
 
     print(f"Gov capex:  {gov_costs:,.0f} USD")
@@ -295,7 +314,7 @@ def run_model(town, ass, verbose=False):
     farm_type = get_farm_type(town, ass)
 
     if farm_type:
-        fish_output = get_fish_output(town, ass, farm_type)  # ton/yr
+        fish_output = constrain_output(town, ass)  # ton/yr
 
         # Costs
         land_rent = get_land_rent(ass, farm_type)  # USD/ton/yr
@@ -331,6 +350,8 @@ def run_model(town, ass, verbose=False):
     if verbose:
         if farm_type:
             display(
+                farm_type,
+                fish_output,
                 gov_costs,
                 gov_annual,
                 revenue,
@@ -338,7 +359,6 @@ def run_model(town, ass, verbose=False):
                 town,
                 town.hhs,
                 total_social_benefit,
-                farm_type,
             )
         else:
             print("No farm possible here")
@@ -346,18 +366,11 @@ def run_model(town, ass, verbose=False):
     else:
         if farm_type:
             return Result(
+                farm_type=farm_type,
+                fish_output=max(0, fish_output),
                 profit=max(0, profit),
                 gov_costs=max(0, gov_costs),
                 social=max(0, total_social_benefit),
-                farm_type=farm_type,
             )
         else:
-            return Result(0, 0, 0, "none")
-
-
-@define
-class Result:
-    profit: float
-    gov_costs: float
-    social: float
-    farm_type: str
+            return Result("none", 0, 0, 0, 0)

@@ -107,11 +107,12 @@ def model(
         run_model(town, ass, verbose=True)
 
     else:
-        cols = [run_model(Town.from_row(row), ass) for idx, row in gdf.iterrows()]
-        gdf["profit"] = [c.profit for c in cols]
-        gdf["gov_costs"] = [c.gov_costs for c in cols]
-        gdf["social"] = [c.social for c in cols]
-        gdf["farm_type"] = [c.farm_type for c in cols]
+        data = [run_model(Town.from_row(row), ass) for idx, row in gdf.iterrows()]
+        gdf["farm_type"] = [r.farm_type for r in data]
+        gdf["fish_output"] = [r.fish_output for r in data]
+        gdf["profit"] = [r.profit for r in data]
+        gdf["gov_costs"] = [r.gov_costs for r in data]
+        gdf["social"] = [r.social for r in data]
         gdf.to_file(out_file)
 
 
