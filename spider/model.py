@@ -8,12 +8,15 @@ class Assumptions:
     interest_rate: float = 0.06  # as a fraction of 1
     fish_price: int = 6000  # USD/ton
 
-    max_fish_output: int = 1000  # tons/yr
-    labor_per_hh: float = 0.5
+    max_fish_output: int = 10000  # tons/yr
+    labor_per_hh: float = 0.5  # people per hh
+
+    min_pop: int = 33000  # people
+    max_pop: int = 200000  # people
 
     max_lake_dist: int = 9  # max distance to lake victoria
     max_water_dist: int = 9  # max distance to another lake for pond water
-    min_precip: int = 30  # min precip for pond if no water
+    min_precip: int = 500  # min precip for pond if no water
     truck_econ_multi: float = 1  # additional road usage due to econ activity
     traffic_pp: float = 1 / 2000  # current vehicles/person/day
 
@@ -33,6 +36,7 @@ class Town:
     city_dist: float
     lake_dist: float
     water_dist: float
+    river_dist: float
     precip: int
     road_type: str = "earth"
     hh_size: float = 5
@@ -51,6 +55,7 @@ class Town:
             city_dist=row["city_dist"],
             lake_dist=row["lake_dist"],
             water_dist=row["water_dist"],
+            river_dist=row["river_dist"],
             precip=row["precip"],
         )
 
@@ -64,33 +69,46 @@ class Result:
     social: float
 
 
-def get_farm_type(town, ass):
-    """type"""
-    if town.lake_dist < ass.max_lake_dist:
-        return "cage"
-    elif town.water_dist < ass.max_water_dist:
-        return "pond"
-    elif town.precip > ass.min_precip:
-        return "pond"
-    else:
-        return None
-
-
 def constrain_output(town, ass):
-    """ton/yr"""
-    farm_type = get_farm_type(town, ass)
-    max_from_farm = 0
-    if farm_type == "cage":
-        max_from_farm = 1000
-    elif farm_type == "pond":
-        max_from_farm = town.precip * 20
+    """ton/yr, farm type"""
 
-    labor = town.hhs * ass.labor_per_hh  # number of laborers available
-    labor_needed = 3 if farm_type == "cage" else 1  # worker/ton/yr
-    max_fish_from_labor = labor // labor_needed  # ton/yr
+    farm_type = None
+    if town.lake_dist < ass.max_lake_dist:
+        farm_type = "cage"
+    elif (
+        town.water_dist < ass.max_water_dist
+        or town.river_dist < ass.max_water_dist
+        or town.precip > ass.min_precip
+    ):
+        farm_type = "pond"
 
-    fish_output = min(ass.max_fish_output, max_fish_from_labor, max_from_farm)  # ton/yr
-    return fish_output
+    fish_output = 0
+    if (
+        town.precip > ass.min_precip
+        and town.pop > ass.min_pop
+        and town.pop < ass.max_pop
+    ):
+        max_from_farm = 0
+        if farm_type == "cage":
+            max_from_farm = ass.max_fish_output
+        elif farm_type == "pond":
+            max_from_farm = town.precip * 20
+
+        labor = town.hhs * ass.labor_per_hh  # number of laborers available
+        labor_needed = 3 if farm_type == "cage" else 1  # worker/ton/yr
+        max_fish_from_labor = labor // labor_needed  # ton/yr
+
+        fish_output = min(
+            ass.max_fish_output,
+            max_fish_from_labor,
+            max_from_farm,
+        )  # ton/yr
+
+    if fish_output == 0:
+        farm_type = None
+    if farm_type is None:
+        fish_output = 0
+    return fish_output, farm_type
 
 
 def npv(yrs, r):
@@ -311,11 +329,9 @@ def display(
 
 def run_model(town, ass, verbose=False):
     # Some decisions
-    farm_type = get_farm_type(town, ass)
+    fish_output, farm_type = constrain_output(town, ass)  # ton/yr
 
     if farm_type:
-        fish_output = constrain_output(town, ass)  # ton/yr
-
         # Costs
         land_rent = get_land_rent(ass, farm_type)  # USD/ton/yr
         elec_cost_for_farm = get_elec_cost_for_farm(town, ass)  # USD/ton/yr

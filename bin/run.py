@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import sys
+import warnings
 
 from typer import Typer, echo, Option
 import yaml
@@ -13,9 +14,8 @@ from spider.model import Assumptions, Town, run_model
 
 app = Typer()
 
-sys.path.append(os.path.dirname(__file__))
-
-cfg_default = Path(os.path.dirname(__file__)) / "config.yml"
+cfg_default = Path(__file__).parents[1] / "config.yml"
+warnings.simplefilter("ignore")
 
 
 @app.command()
@@ -113,6 +113,8 @@ def model(
         gdf["profit"] = [r.profit for r in data]
         gdf["gov_costs"] = [r.gov_costs for r in data]
         gdf["social"] = [r.social for r in data]
+        print(f"Saving to {out_file}")
+        breakpoint()
         gdf.to_file(out_file)
 
 

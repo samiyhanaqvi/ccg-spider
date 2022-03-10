@@ -43,6 +43,14 @@ features:
     fix:
       factor: 0.001
 
+  - name: river_dist
+    type: vector
+    operation: distance
+    file: data/rivers.gpkg
+    decimals: 3
+    fix:
+      factor: 0.001
+
   - name: road_dist
     type: vector
     operation: distance
