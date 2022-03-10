@@ -26,6 +26,25 @@ class Assumptions:
     ice_power: float = 0.1  # kW/ton capacity
     aeration_power: float = 1.25  # kW/ton capacity
 
+    always_towns: list[str] = [
+        "homa bay",
+        "migori",
+        "kakamega",
+        "kirinyaga",
+        "nyeri",
+        "meru",
+        "tharaka nithi",
+        "kisii",
+        "kisumu",
+        "siaya",
+        "busia",
+        "embu",
+        "kiambu",
+        "machakos",
+        "kajiado",
+        "kitui",
+    ]
+
 
 @define
 class Town:
@@ -38,6 +57,7 @@ class Town:
     water_dist: float
     river_dist: float
     precip: int
+    adm1: str
     road_type: str = "earth"
     hh_size: float = 5
 
@@ -57,6 +77,7 @@ class Town:
             water_dist=row["water_dist"],
             river_dist=row["river_dist"],
             precip=row["precip"],
+            adm1=row["adm1"],
         )
 
 
@@ -79,6 +100,7 @@ def constrain_output(town, ass):
         town.water_dist < ass.max_water_dist
         or town.river_dist < ass.max_water_dist
         or town.precip > ass.min_precip
+        or town.adm1.lower() in ass.always_towns
     ):
         farm_type = "pond"
 

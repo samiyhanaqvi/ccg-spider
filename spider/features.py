@@ -52,7 +52,7 @@ def add_raster_layer(
         geom_proj = geom.to_crs(crs)
         stats = zonal_stats(geom_proj, raster, stats=operation)
 
-        return [x[operation]for x in stats]
+        return [x[operation] for x in stats]
 
     else:
         raise NotImplementedError("Only implemented for path input.")
@@ -64,6 +64,7 @@ def add_vector_layer(
     operation: str,
     raster_like: Path,
     decimals: int = 2,
+    joined_col: str = None,
 ) -> list:
     """
     Use a vector containing grid infrastructure to determine
@@ -77,7 +78,7 @@ def add_vector_layer(
         Path to or already imported grid dataframe.
     operation: str
         Operation to perform in extracting vector data.
-        Currently only 'distance' supported.
+        Currently only 'distance' and 'sjoin' supported.
     raster_like: file-like
         Raster file to use for crs, shape, affine when rasterizing vector
     """
@@ -87,15 +88,22 @@ def add_vector_layer(
 
     assert isinstance(geom, gpd.GeoDataFrame), "geom must be a GeoDataFrame"
 
-    with rasterio.open(raster_like) as rd:
-        crs = rd.crs
-        affine = rd.transform
-        shape = rd.shape
+    if operation == "sjoin":
+        return (
+            geom.to_crs(4326)
+            .sjoin(vector.to_crs(4326))
+            .drop_duplicates("index")[joined_col]
+        )
 
-    vector = vector.to_crs(crs=crs)
-    geom = geom.to_crs(crs=crs)
+    elif operation == "distance":
+        with rasterio.open(raster_like) as rd:
+            crs = rd.crs
+            affine = rd.transform
+            shape = rd.shape
 
-    if operation == "distance":
+        vector = vector.to_crs(crs=crs)
+        geom = geom.to_crs(crs=crs)
+
         vector = vector.loc[vector["geometry"].length > 0]
 
         grid_raster = rasterize(

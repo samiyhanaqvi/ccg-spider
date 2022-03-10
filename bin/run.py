@@ -56,24 +56,24 @@ def feat(
                     vector=Path(f["file"]).expanduser(),
                     operation=f["operation"],
                     raster_like=cfg["raster_like"],
+                    joined_col=f.get("joined_col", None),
                 )
 
             else:
                 raise ValueError("Only 'raster' or 'vector' supported for 'type'.")
 
-            geom[col_name] = geom[col_name].fillna(0).round(f["decimals"])
+            if f.get("decimals"):
+                geom[col_name] = geom[col_name].fillna(0).round(f["decimals"])
 
             if "fix" in f:
                 fix = f["fix"]
                 geom[col_name] = fix_column(
                     col=geom[col_name],
                     pop=geom.Pop if "Pop" in geom.columns else None,
-                    factor=fix["factor"] if "factor" in fix.keys() else None,
-                    minimum=fix["minimum"] if "minimum" in fix.keys() else None,
-                    no_value=fix["no_value"] if "no_value" in fix.keys() else None,
-                    per_capita=fix["per_capita"]
-                    if "per_capita" in fix.keys()
-                    else None,
+                    factor=fix.get("factor"),
+                    minimum=fix.get("minimum"),
+                    no_value=fix.get("no_value"),
+                    per_capita=fix.get("per_capita"),
                 )
 
     if not file.exists():
@@ -114,7 +114,6 @@ def model(
         gdf["gov_costs"] = [r.gov_costs for r in data]
         gdf["social"] = [r.social for r in data]
         print(f"Saving to {out_file}")
-        breakpoint()
         gdf.to_file(out_file)
 
 

@@ -74,3 +74,9 @@ features:
     decimals: 3
     fix:
       factor: 0.001
+
+  - name: adm1
+    type: vector
+    operation: sjoin
+    file: data/gadm1.gpkg
+    joined_col: NAME_1
