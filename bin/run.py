@@ -97,6 +97,7 @@ def model(
     in_file: Path,
     out_file: Path,
     sample: bool = Option(False),
+    js: bool = Option(False),
 ):
     gdf = gpd.read_file(in_file)
     ass = Assumptions(mg_cost_pkw=2000)
@@ -115,6 +116,9 @@ def model(
         gdf["social"] = [r.social for r in data]
         print(f"Saving to {out_file}")
         gdf.to_file(out_file)
+        if js:
+            with open("dist/hex.js", "w") as f:
+                print("export default", gdf.to_json(), file=f)
 
 
 if __name__ == "__main__":

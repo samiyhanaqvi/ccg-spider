@@ -1,6 +1,7 @@
 /* global mapboxgl Vue hex */
 
 import hex from "./hex.js";
+import { pars, filts } from "./config.js";
 
 const toObj = (arr) =>
   arr.reduce((acc, el) => ((acc[el.name] = el.val), acc), {});
@@ -20,43 +21,8 @@ Vue.component("slider", {
 const app = new Vue({
   el: "#sidebar",
   data: {
-    message: "Hello Vue!",
-    pars: [
-      {
-        name: "grid",
-        label: "Grid cost per km",
-        min: 1,
-        max: 1000,
-        val: 200,
-        unit: "$",
-      },
-      {
-        name: "road",
-        label: "Road cost per km",
-        min: 1,
-        max: 1000,
-        val: 500,
-        unit: "$",
-      },
-      {
-        name: "pop",
-        label: "Cost per person",
-        min: 0,
-        max: 10,
-        val: 3,
-        unit: "$",
-      },
-    ],
-    filts: [
-      {
-        name: "lake",
-        label: "Max lake dist",
-        min: 0,
-        max: 10,
-        val: 3,
-        unit: "km",
-      },
-    ],
+    pars: pars,
+    filts: filts,
   },
   watch: {
     parVals: function () {
@@ -101,6 +67,7 @@ map.on("load", () => {
     data: hex,
   });
 
+  updateHex(app.parVals, app.filtVals, false);
   map.addLayer({
     id: "hex",
     type: "fill",
@@ -109,10 +76,10 @@ map.on("load", () => {
       "fill-color": [
         "interpolate",
         ["linear"],
-        ["get", "Cost"],
+        ["get", "profit"],
         0,
         "hsl(0, 29%, 93%)",
-        400000,
+        40000,
         "hsl(0, 100%, 23%)",
       ],
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],
@@ -132,22 +99,25 @@ map.on("load", () => {
 
 const objective = (props, parVals) => {
   return (
-    props.grid * parVals.grid +
-    props.road * parVals.road +
+    props.grid_dist * parVals.grid +
+    props.road_dist * parVals.road +
     props.pop * parVals.pop
   );
 };
 
 const filter = (filtVals) => {
-  return ["all", ["<", ["get", "lake"], parseInt(filtVals["lake"])]];
+  console.log(filtVals);
+  return ["all", ["<", ["get", "water_dist"], parseInt(filtVals["water_dist"])]];
 };
 
-const updateHex = (parVals, filtVals) => {
+const updateHex = (parVals, filtVals, updateMap = true) => {
   if (mapLoaded) {
     hex.features.forEach((ft, i) => {
-      hex.features[i].properties.Cost = objective(ft.properties, parVals);
+      hex.features[i].properties.profit = objective(ft.properties, parVals);
     });
-    map.getSource("hex").setData(hex);
-    map.setFilter("hex", filter(filtVals));
+    if (updateMap) {
+      map.getSource("hex").setData(hex);
+      map.setFilter("hex", filter(filtVals));
+    }
   }
 };
