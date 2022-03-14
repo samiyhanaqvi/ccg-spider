@@ -32,6 +32,7 @@ export const filts = [
     min: 0,
     max: 10,
     val: 5,
+    op: "<",
     unit: "km",
   },
 ];

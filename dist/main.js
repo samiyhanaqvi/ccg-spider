@@ -45,7 +45,7 @@ const app = new Vue({
   },
   methods: {
     update: function () {
-      updateHex(this.parVals, this.filtVals);
+      updateHex(this.parVals, this.filts);
     },
   },
 });
@@ -67,7 +67,7 @@ map.on("load", () => {
     data: hex,
   });
 
-  updateHex(app.parVals, app.filtVals, false);
+  updateHex(app.parVals, app.filts, false);
   map.addLayer({
     id: "hex",
     type: "fill",
@@ -94,7 +94,7 @@ map.on("load", () => {
       ],
     },
   });
-  updateHex(app.parVals, app.filtVals);
+  updateHex(app.parVals, app.filts);
 });
 
 const objective = (props, parVals) => {
@@ -105,19 +105,20 @@ const objective = (props, parVals) => {
   );
 };
 
-const filter = (filtVals) => {
-  console.log(filtVals);
-  return ["all", ["<", ["get", "water_dist"], parseInt(filtVals["water_dist"])]];
+const filter = (filts) => {
+  return ["all"].concat(
+    filts.map((f) => [f.op, ["get", f.name], parseInt(f.val)])
+  );
 };
 
-const updateHex = (parVals, filtVals, updateMap = true) => {
+const updateHex = (parVals, filts, updateMap = true) => {
   if (mapLoaded) {
     hex.features.forEach((ft, i) => {
       hex.features[i].properties.profit = objective(ft.properties, parVals);
     });
     if (updateMap) {
       map.getSource("hex").setData(hex);
-      map.setFilter("hex", filter(filtVals));
+      map.setFilter("hex", filter(filts));
     }
   }
 };
