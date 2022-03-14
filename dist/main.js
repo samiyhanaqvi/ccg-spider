@@ -59,6 +59,35 @@ const map = new mapboxgl.Map({
   zoom: 6,
 });
 
+const draw = new MapboxDraw({
+  displayControlsDefault: false,
+  controls: {
+    line_string: true,
+    trash: true,
+  },
+});
+map.addControl(draw);
+const updateLine = (e) => {
+  const line = draw.getAll().features[0].geometry;
+  const length = Math.floor(turf.lineDistance(line, "km"));
+  let points = {
+    type: "FeatureCollection",
+    features: [],
+  };
+  for (let step = 0; step < length + 6; step += 5) {
+    points.features.push(turf.along(line, step, "km"));
+  }
+  const tagged = turf
+    .tag(points, hex, "index", "hexId")
+    .features.map((f) => f.properties.hexId);
+  const ids = [...new Set(tagged)];
+  console.log(ids);
+};
+
+map.on("draw.create", updateLine);
+map.on("draw.delete", updateLine);
+map.on("draw.update", updateLine);
+
 let mapLoaded = false;
 map.on("load", () => {
   mapLoaded = true;
@@ -94,6 +123,21 @@ map.on("load", () => {
       ],
     },
   });
+  map.addLayer({
+    id: "hex_label",
+    type: "symbol",
+    source: "hex",
+    layout: {
+      "text-field": "{index}",
+      "text-size": 10,
+    },
+    paint: {
+      "text-halo-width": 1,
+      "text-halo-color": "#fff",
+      "text-halo-blur": 1,
+      "text-color": "#000",
+    },
+  });
   updateHex(app.parVals, app.filts);
 });
 
@@ -119,6 +163,7 @@ const updateHex = (parVals, filts, updateMap = true) => {
     if (updateMap) {
       map.getSource("hex").setData(hex);
       map.setFilter("hex", filter(filts));
+      map.setFilter("hex_label", filter(filts));
     }
   }
 };
