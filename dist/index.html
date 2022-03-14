@@ -20,6 +20,12 @@
             <slider v-for="obj in pars" :obj="obj"></slider>
             <h2>Filters</h2>
             <slider v-for="obj in filts" :obj="obj"></slider>
+            <h2>Colour by</h2>
+            <select v-model="colorBy">
+                <option v-for="a in Object.keys(attrs)" :value="a">
+                    {{ a }}
+                </option>
+            </select>
         </div>
         <div id="map"></div>
         <script type="module" src="./main.js"></script>

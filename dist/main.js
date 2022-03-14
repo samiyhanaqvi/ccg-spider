@@ -1,10 +1,11 @@
 /* global mapboxgl Vue hex */
 
 import hex from "./hex.js";
-import { pars, filts } from "./config.js";
+import { pars, filts, attrs } from "./config.js";
+
 
 const toObj = (arr) =>
-  arr.reduce((acc, el) => ((acc[el.name] = el.val), acc), {});
+  arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 
 Vue.component("slider", {
   props: ["obj"],
@@ -17,18 +18,25 @@ Vue.component("slider", {
   `,
 });
 
+const attrsObj = toObj(attrs);
+
 // eslint-disable-next-line no-unused-vars
 const app = new Vue({
   el: "#sidebar",
   data: {
     pars: pars,
     filts: filts,
+    attrs: attrsObj,
+    colorBy: "profit",
   },
   watch: {
     parVals: function () {
       this.debouncedUpdate();
     },
-    filtVals: function () {
+    filts: function () {
+      this.debouncedUpdate();
+    },
+    colorBy: function () {
       this.debouncedUpdate();
     },
   },
@@ -36,8 +44,8 @@ const app = new Vue({
     parVals: function () {
       return toObj(this.pars);
     },
-    filtVals: function () {
-      return toObj(this.filts);
+    colorByObj: function () {
+      return this.attrs[this.colorBy];
     },
   },
   created: function () {
@@ -45,7 +53,7 @@ const app = new Vue({
   },
   methods: {
     update: function () {
-      updateHex(this.parVals, this.filts);
+      updateHex(this.parVals, this.filts, this.colorByObj);
     },
   },
 });
@@ -67,8 +75,7 @@ const draw = new MapboxDraw({
   },
 });
 map.addControl(draw);
-const updateLine = (e) => {
-  const line = draw.getAll().features[0].geometry;
+const joinLineToHex = (line) => {
   const length = Math.floor(turf.lineDistance(line, "km"));
   let points = {
     type: "FeatureCollection",
@@ -81,7 +88,11 @@ const updateLine = (e) => {
     .tag(points, hex, "index", "hexId")
     .features.map((f) => f.properties.hexId);
   const ids = [...new Set(tagged)];
-  console.log(ids);
+  return ids;
+};
+const updateLine = (e) => {
+  const lines = draw.getAll();
+  const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
 };
 
 map.on("draw.create", updateLine);
@@ -96,21 +107,13 @@ map.on("load", () => {
     data: hex,
   });
 
-  updateHex(app.parVals, app.filts, false);
+  updateHex(app.parVals, app.filts, app.colorByObj, false);
   map.addLayer({
     id: "hex",
     type: "fill",
     source: "hex",
     paint: {
-      "fill-color": [
-        "interpolate",
-        ["linear"],
-        ["get", "profit"],
-        0,
-        "hsl(0, 29%, 93%)",
-        40000,
-        "hsl(0, 100%, 23%)",
-      ],
+      "fill-color": "rgba(0, 0, 0, 0)",
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],
       "fill-outline-color": [
         "interpolate",
@@ -138,32 +141,41 @@ map.on("load", () => {
       "text-color": "#000",
     },
   });
-  updateHex(app.parVals, app.filts);
+  updateHex(app.parVals, app.filts, app.colorByObj);
 });
 
 const objective = (props, parVals) => {
   return (
-    props.grid_dist * parVals.grid +
-    props.road_dist * parVals.road +
-    props.pop * parVals.pop
+    props.grid_dist * parVals.grid.val +
+    props.road_dist * parVals.road.val +
+    props.pop * parVals.pop.val
   );
 };
 
 const filter = (filts) => {
   return ["all"].concat(
-    filts.map((f) => [f.op, ["get", f.name], parseInt(f.val)])
+    filts.map((f) => [f.op, ["get", f.var], parseInt(f.val)])
   );
 };
 
-const updateHex = (parVals, filts, updateMap = true) => {
+const updateHex = (parVals, filts, colorByObj, updateMap = true) => {
   if (mapLoaded) {
     hex.features.forEach((ft, i) => {
       hex.features[i].properties.profit = objective(ft.properties, parVals);
     });
     if (updateMap) {
-      map.getSource("hex").setData(hex);
       map.setFilter("hex", filter(filts));
       map.setFilter("hex_label", filter(filts));
+      map.getSource("hex").setData(hex);
+      map.setPaintProperty("hex", "fill-color", [
+        "interpolate",
+        ["linear"],
+        ["get", colorByObj.var],
+        colorByObj.min,
+        colorByObj.minCol,
+        colorByObj.max,
+        colorByObj.maxCol,
+      ]);
     }
   }
 };
