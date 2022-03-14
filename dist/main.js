@@ -93,6 +93,10 @@ const joinLineToHex = (line) => {
 const updateLine = (e) => {
   const lines = draw.getAll();
   const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
+  ids.forEach((i) => {
+    hex.features[i].properties.grid_dist = 0;
+  });
+  updateHex(app.parVals, app.filts, app.colorByObj);
 };
 
 map.on("draw.create", updateLine);
