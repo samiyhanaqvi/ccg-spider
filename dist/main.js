@@ -7,6 +7,9 @@ import { pars, filts, attrs } from "./config.js";
 const toObj = (arr) =>
   arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 
+const toObjSingle = (arr, key) =>
+  arr.reduce((acc, el) => ((acc[el.var] = el[key]), acc), {});
+
 Vue.component("slider", {
   props: ["obj"],
   template: `
@@ -33,7 +36,7 @@ const app = new Vue({
     parVals: function () {
       this.debouncedUpdate();
     },
-    filts: function () {
+    filtVals: function () {
       this.debouncedUpdate();
     },
     colorBy: function () {
@@ -42,7 +45,12 @@ const app = new Vue({
   },
   computed: {
     parVals: function () {
-      return toObj(this.pars);
+      return toObjSingle(this.pars, "val");
+    },
+    filtVals: function () {
+      // this is just here because the watcher above
+      // can't deal with deep objects...
+      return toObjSingle(this.filts, "val");
     },
     colorByObj: function () {
       return this.attrs[this.colorBy];
@@ -150,9 +158,9 @@ map.on("load", () => {
 
 const objective = (props, parVals) => {
   return (
-    props.grid_dist * parVals.grid.val +
-    props.road_dist * parVals.road.val +
-    props.pop * parVals.pop.val
+    props.grid_dist * parVals.grid +
+    props.road_dist * parVals.road +
+    props.pop * parVals.pop
   );
 };
 
