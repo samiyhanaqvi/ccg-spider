@@ -4,6 +4,8 @@ import hex from "./hex.js";
 import { pars, attrs } from "./config.js";
 import { run_model } from "./model.js";
 
+const idLabels = false;
+
 const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 
 const toObjSingle = (arr, key) =>
@@ -176,10 +178,13 @@ map.on("load", () => {
     data: hex,
   });
 
+  const filt = ["!=", ["get", "farm_type"], "none"];
+
   map.addLayer({
     id: "hex",
     type: "fill",
     source: "hex",
+    filter: filt,
     paint: {
       "fill-color": "rgba(0, 0, 0, 0)",
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],
@@ -194,26 +199,48 @@ map.on("load", () => {
       ],
     },
   });
-  map.addLayer({
-    id: "hex_label",
-    type: "symbol",
-    source: "hex",
-    layout: {
-      "text-field": "{index}",
-      "text-size": 10,
-    },
-    paint: {
-      "text-halo-width": 1,
-      "text-halo-color": "#fff",
-      "text-halo-blur": 1,
-      "text-color": "#000",
-    },
-  });
-  const filt = ["!=", ["get", "farm_type"], "none"];
-  map.setFilter("hex", filt);
-  map.setFilter("hex_label", filt);
+  if (idLabels) {
+    map.addLayer({
+      id: "hex_label",
+      type: "symbol",
+      source: "hex",
+      filter: filt,
+      layout: {
+        "text-field": "{index}",
+        "text-size": 10,
+      },
+      paint: {
+        "text-halo-width": 1,
+        "text-halo-color": "#fff",
+        "text-halo-blur": 1,
+        "text-color": "#000",
+      },
+    });
+  }
   updateHex(app.parVals);
   updatePaint(app.colorByObj);
+
+  const pointer = () => (map.getCanvas().style.cursor = "pointer");
+  const nopointer = () => (map.getCanvas().style.cursor = "");
+
+  map.on("mouseenter", "hex", pointer);
+  map.on("mouseleave", "hex", nopointer);
+
+  const fmt = (val) => val && Math.round(val).toLocaleString("en");
+
+  const addPopup = (e) => {
+    const props = e.features[0].properties;
+    const description = `
+    <div>Grid dist: ${fmt(props.profit)} USD</div>
+    <div>Farm type: ${props.farm_type}</div>
+    <div>Fish output: ${fmt(props.fish_output)} tons/year</div>
+    <div>Profit: ${fmt(props.profit)} USD/year</div>
+    <div>Gov costs: ${fmt(props.gov_costs)} USD/year</div>
+    <div>Social: ${fmt(props.social)} USD/year</div>
+    `;
+    new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(description).addTo(map);
+  };
+  map.on("click", "hex", (e) => addPopup(e));
 });
 
 const updatePaint = (attr) => {

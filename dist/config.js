@@ -138,13 +138,6 @@ export const attrs = [
     maxCol: "hsl(90, 100%, 23%)",
   },
   {
-    var: "lake_dist",
-    min: 0,
-    max: 20,
-    minCol: "hsl(150, 29%, 93%)",
-    maxCol: "hsl(150, 100%, 23%)",
-  },
-  {
     var: "farm_type",
     cats: ["cage", "pond"],
     colors: [
