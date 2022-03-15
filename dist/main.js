@@ -4,8 +4,6 @@ import hex from "./hex.js";
 import { pars, attrs } from "./config.js";
 import { run_model } from "./model.js";
 
-const idLabels = false;
-
 const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 
 const toObjSingle = (arr, key) =>
@@ -48,11 +46,19 @@ const app = new Vue({
   data() {
     return {
       pars: pars,
+      idLabels: false,
       attrs: attrsObj,
       colorBy: "profit",
     };
   },
   computed: {
+    idLabelsText: function () {
+      if (this.idLabels) {
+        return "visible";
+      } else {
+        return "none";
+      }
+    },
     parVals: function () {
       return toObjSingle(this.pars, "val");
     },
@@ -61,6 +67,9 @@ const app = new Vue({
     },
   },
   watch: {
+    idLabelsText: function () {
+      map.setLayoutProperty("hex_label", "visibility", this.idLabelsText);
+    },
     parVals: function () {
       this.debouncedUpdate();
     },
@@ -199,24 +208,23 @@ map.on("load", () => {
       ],
     },
   });
-  if (idLabels) {
-    map.addLayer({
-      id: "hex_label",
-      type: "symbol",
-      source: "hex",
-      filter: filt,
-      layout: {
-        "text-field": "{index}",
-        "text-size": 10,
-      },
-      paint: {
-        "text-halo-width": 1,
-        "text-halo-color": "#fff",
-        "text-halo-blur": 1,
-        "text-color": "#000",
-      },
-    });
-  }
+  map.addLayer({
+    id: "hex_label",
+    type: "symbol",
+    source: "hex",
+    filter: filt,
+    layout: {
+      "text-field": "{index}",
+      "text-size": 10,
+      "visibility": app.idLabelsText,
+    },
+    paint: {
+      "text-halo-width": 1,
+      "text-halo-color": "#fff",
+      "text-halo-blur": 1,
+      "text-color": "#000",
+    },
+  });
   updateHex(app.parVals);
   updatePaint(app.colorByObj);
 

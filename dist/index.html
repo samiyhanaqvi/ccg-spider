@@ -28,6 +28,10 @@
                 <h2 class="text-2xl">Parameters</h2>
                 <slider v-for="obj in pars" :obj="obj"></slider>
             </div>
+            <div>
+                <input type="checkbox" v-model="idLabels">
+                <label for="checkbox">Show ID labels</label>
+            </div>
         </div>
         <div id="map" class="flex flex-grow"></div>
         <script type="module" src="./main.js"></script>
