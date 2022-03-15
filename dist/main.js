@@ -1,7 +1,7 @@
 /* global mapboxgl Vue hex */
 
 import hex from "./hex.js";
-import { pars, filts, attrs } from "./config.js";
+import { pars, attrs } from "./config.js";
 import { run_model } from "./model.js";
 
 const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
@@ -46,7 +46,6 @@ const app = new Vue({
   data() {
     return {
       pars: pars,
-      filts: filts,
       attrs: attrsObj,
       colorBy: "profit",
     };
@@ -54,11 +53,6 @@ const app = new Vue({
   computed: {
     parVals: function () {
       return toObjSingle(this.pars, "val");
-    },
-    filtVals: function () {
-      // this is just here because the watcher above
-      // can't deal with deep objects...
-      return toObjSingle(this.filts, "val");
     },
     colorByObj: function () {
       return this.attrs[this.colorBy];
@@ -80,7 +74,8 @@ const app = new Vue({
   },
   methods: {
     update: function () {
-      updateHex(this.parVals, this.filts, this.colorByObj);
+      updateHex(this.parVals);
+      updatePaint(this.colorByObj);
     },
   },
 });
@@ -149,7 +144,7 @@ const updateLine = (e) => {
   const lines = draw.getAll();
   const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
   extendGrid(ids, 0);
-  updateHex(app.parVals, app.filts, app.colorByObj);
+  updateHex(app.parVals, app.colorByObj);
 };
 
 const extendGrid = (ids, dist) => {
@@ -181,7 +176,6 @@ map.on("load", () => {
     data: hex,
   });
 
-  updateHex(app.parVals, app.filts, app.colorByObj, false);
   map.addLayer({
     id: "hex",
     type: "fill",
@@ -215,14 +209,12 @@ map.on("load", () => {
       "text-color": "#000",
     },
   });
-  updateHex(app.parVals, app.filts, app.colorByObj);
+  const filt = ["!=", ["get", "farm_type"], "none"];
+  map.setFilter("hex", filt);
+  map.setFilter("hex_label", filt);
+  updateHex(app.parVals);
+  updatePaint(app.colorByObj);
 });
-
-const filter = (filts) => {
-  return ["all"].concat(
-    filts.map((f) => [f.op, ["get", f.var], parseInt(f.val)])
-  );
-};
 
 const updatePaint = (attr) => {
   if ("cats" in attr) {
@@ -246,18 +238,14 @@ const updatePaint = (attr) => {
   }
 };
 
-const updateHex = (parVals, filts, colorByObj, updateMap = true) => {
+const updateHex = (parVals) => {
   if (mapLoaded) {
     hex.features.forEach((ft) => {
-      const res = run_model(ft.properties, parVals);
-      ft.properties = { ...ft.properties, ...res };
+      ft.properties = {
+        ...ft.properties,
+        ...run_model(ft.properties, parVals),
+      };
     });
-    if (updateMap) {
-      const mbFilter = filter(filts);
-      map.setFilter("hex", mbFilter);
-      map.setFilter("hex_label", mbFilter);
-      map.getSource("hex").setData(hex);
-      updatePaint(colorByObj);
-    }
+    map.getSource("hex").setData(hex);
   }
 };

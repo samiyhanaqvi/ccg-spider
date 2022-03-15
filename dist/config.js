@@ -129,18 +129,6 @@ export const pars = [
   },
 ];
 
-export const filts = [
-  {
-    var: "water_dist",
-    label: "Max water dist",
-    min: 0,
-    max: 10,
-    val: 5,
-    op: "<",
-    unit: "km",
-  },
-];
-
 export const attrs = [
   {
     var: "grid_dist",
