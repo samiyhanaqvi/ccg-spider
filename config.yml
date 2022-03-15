@@ -43,6 +43,7 @@ features:
     fix:
       factor: 0.001
 
+  # TODO river data is currently wrong
   - name: river_dist
     type: vector
     operation: distance
