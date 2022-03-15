@@ -8,26 +8,26 @@
         <script src="vendor/lodash.min.js"></script>
         <script src="vendor/mapbox-gl.js"></script>
         <link href="vendor/mapbox-gl.css" rel="stylesheet" />
-        <link rel="stylesheet" href="./style.css">
+        <link rel="stylesheet" href="./tw.css">
         <script src="vendor/turf.min.js"></script>
         <script src="vendor/mapbox-gl-draw.js"></script>
         <link rel="stylesheet" href="vendor/mapbox-gl-draw.css">
     </head>
-    <body>
-        <div id="sidebar">
-            <h1>Spider</h1>
-            <h2>Economic/social parameters</h2>
-            <slider v-for="obj in pars" :obj="obj"></slider>
-            <h2>Filters</h2>
-            <slider v-for="obj in filts" :obj="obj"></slider>
-            <h2>Colour by</h2>
+    <body class="h-screen w-screen flex">
+        <div id="sidebar" class="w-80 h-screen overflow-y-scroll">
+            <h1 class="text-5xl">Spider</h1>
+            <h2 class="text-2xl">Colour by</h2>
             <select v-model="colorBy">
                 <option v-for="a in Object.keys(attrs)" :value="a">
                     {{ a }}
                 </option>
             </select>
+            <h2 class="text-2xl">Filters</h2>
+            <slider v-for="obj in filts" :obj="obj"></slider>
+            <h2 class="text-2xl">Economic/social parameters</h2>
+            <slider v-for="obj in pars" :obj="obj"></slider>
         </div>
-        <div id="map"></div>
+        <div id="map" class="flex flex-grow"></div>
         <script type="module" src="./main.js"></script>
     </body>
 </html>
