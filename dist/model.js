@@ -244,6 +244,7 @@ const get_social_benefit = (town) => {
 
 export const run_model = (town, ass) => {
   town.hhs = town.pop / 5;
+  ass.interest_rate /= 100;
   // Some decisions
   const [fish_output, farm_type] = constrain_output(town, ass); // ton/yr
 

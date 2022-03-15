@@ -14,18 +14,24 @@
         <link rel="stylesheet" href="vendor/mapbox-gl-draw.css">
     </head>
     <body class="h-screen w-screen flex">
-        <div id="sidebar" class="w-80 h-screen overflow-y-scroll">
-            <h1 class="text-5xl">Spider</h1>
-            <h2 class="text-2xl">Colour by</h2>
-            <select v-model="colorBy">
-                <option v-for="a in Object.keys(attrs)" :value="a">
+        <div id="sidebar" class="w-80 h-screen overflow-y-scroll p-2">
+            <h1 class="text-4xl block mx-auto text-center">Spider</h1>
+            <div class="my-4">
+                <h2 class="text-2xl">Colour by</h2>
+                <select v-model="colorBy" class="p-2">
+                    <option v-for="a in Object.keys(attrs)" :value="a">
                     {{ a }}
-                </option>
-            </select>
-            <h2 class="text-2xl">Filters</h2>
-            <slider v-for="obj in filts" :obj="obj"></slider>
-            <h2 class="text-2xl">Economic/social parameters</h2>
-            <slider v-for="obj in pars" :obj="obj"></slider>
+                    </option>
+                </select>
+            </div>
+            <div class="my-4">
+                <h2 class="text-2xl">Filters</h2>
+                <slider v-for="obj in filts" :obj="obj"></slider>
+            </div>
+            <div class="my-4">
+                <h2 class="text-2xl">Parameters</h2>
+                <slider v-for="obj in pars" :obj="obj"></slider>
+            </div>
         </div>
         <div id="map" class="flex flex-grow"></div>
         <script type="module" src="./main.js"></script>

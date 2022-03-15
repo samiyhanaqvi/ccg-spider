@@ -14,10 +14,19 @@ Vue.component("slider", {
   // eslint-disable-next-line
   props: ["obj"],
   template: `
-  <div>
-    <div>{{ obj.var }}: {{ obj.val }} {{ obj.unit }}</div>
-    <input type="range" :min="obj.min" :max="obj.max"
-           class="slider" v-model="obj.val">
+  <div class="bg-slate-300 my-2 -mx-2 p-1">
+    <div class="text-sm">
+      {{ obj.label }}:
+      {{ obj.val }}
+      {{ obj.unit }}
+    </div>
+    <input type="range"
+           :min="obj.min"
+           :max="obj.max"
+           :step="(obj.max - obj.min)/100"
+           class="slider"
+           v-model="obj.val"
+    >
   </div>
   `,
 });
@@ -211,10 +220,7 @@ const filter = (filts) => {
 const updateHex = (parVals, filts, colorByObj, updateMap = true) => {
   if (mapLoaded) {
     hex.features.forEach((ft, i) => {
-      const res = run_model(
-        hex.features[i].properties,
-        toObjSingle(pars, "val")
-      );
+      const res = run_model(hex.features[i].properties, parVals);
       hex.features[i].properties.profit = res.profit;
     });
     console.log(Math.max(...hex.features.map((f) => f.properties.profit)));
