@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
-import os
+import re
 from pathlib import Path
-import sys
 import warnings
 
 from typer import Typer, echo, Option
 import yaml
 import geopandas as gpd
 
-from spider.features import add_raster_layer, add_vector_layer, fix_column, create_hex
+from spider.features import (
+    add_raster_layer,
+    add_vector_layer,
+    fix_column,
+    create_hex,
+    add_neighbors,
+)
 from spider.model import Assumptions, Town, run_model
 
 app = Typer()
@@ -23,7 +28,6 @@ def feat(
     file: Path,
     config: Path = Option(cfg_default, help="Path to config file"),
     overwrite: bool = Option(False),
-    js: bool = Option(False),
 ) -> None:
     """Add features."""
 
@@ -85,11 +89,28 @@ def feat(
         tolerance=0.001,
         preserve_topology=False,
     )
-    if js:
-        with open("dist/hex.js", "w") as f:
-            print("export default", geom.to_json(), file=f)
-
     geom.to_file(file)
+
+
+@app.command()
+def js(in_file: Path):
+    gdf = gpd.read_file(in_file)
+    with open("dist/hex.js", "w") as f:
+        gdf_json = gdf.to_json()
+        gdf_json = re.sub(
+            r'"id": "(\d*)"',
+            lambda m: f'"id": {m.group(1)}',
+            gdf_json,
+        )
+        print("export default", gdf_json, file=f)
+
+
+@app.command()
+def nei(
+    in_file: Path,
+    out_file: Path,
+):
+    add_neighbors(gpd.read_file(in_file)).to_file(out_file)
 
 
 @app.command()
@@ -97,7 +118,6 @@ def model(
     in_file: Path,
     out_file: Path,
     sample: bool = Option(False),
-    js: bool = Option(False),
 ):
     gdf = gpd.read_file(in_file)
     ass = Assumptions(mg_cost_pkw=2000)
@@ -116,9 +136,6 @@ def model(
         gdf["social"] = [r.social for r in data]
         print(f"Saving to {out_file}")
         gdf.to_file(out_file)
-        if js:
-            with open("dist/hex.js", "w") as f:
-                print("export default", gdf.to_json(), file=f)
 
 
 if __name__ == "__main__":
