@@ -3,9 +3,7 @@
 import hex from "./hex.js";
 import { pars, filts, attrs } from "./config.js";
 
-
-const toObj = (arr) =>
-  arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
+const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 
 const toObjSingle = (arr, key) =>
   arr.reduce((acc, el) => ((acc[el.var] = el[key]), acc), {});
@@ -81,6 +79,34 @@ const draw = new MapboxDraw({
     line_string: true,
     trash: true,
   },
+  styles: [
+    {
+        "id": "gl-draw-line",
+        "type": "line",
+        "filter": ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+        "layout": {
+          "line-cap": "round",
+          "line-join": "round"
+        },
+        "paint": {
+          "line-color": "#000000",
+          "line-width": 3
+        }
+    },
+    {
+        "id": "gl-draw-line-static",
+        "type": "line",
+        "filter": ["all", ["==", "$type", "LineString"], ["==", "mode", "static"]],
+        "layout": {
+          "line-cap": "round",
+          "line-join": "round"
+        },
+        "paint": {
+          "line-color": "#000000",
+          "line-width": 3
+        }
+    },
+  ]
 });
 map.addControl(draw);
 const joinLineToHex = (line) => {
@@ -95,16 +121,31 @@ const joinLineToHex = (line) => {
   const tagged = turf
     .tag(points, hex, "index", "hexId")
     .features.map((f) => f.properties.hexId);
-  const ids = [...new Set(tagged)];
+  const ids = [...new Set(tagged)].filter(Number);
   return ids;
 };
 const updateLine = (e) => {
   const lines = draw.getAll();
   const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
-  ids.forEach((i) => {
-    hex.features[i].properties.grid_dist = 0;
-  });
+  extendGrid(ids, 0);
   updateHex(app.parVals, app.filts, app.colorByObj);
+};
+
+const extendGrid = (ids, dist) => {
+  let neis = [];
+  ids.forEach((i) => {
+    if (hex.features[i].properties.grid_dist > dist) {
+      hex.features[i].properties.grid_dist = dist;
+      const p = hex.features[i].properties;
+      const nei = [p.n0, p.n1, p.n2, p.n3, p.n4, p.n5];
+      neis.push(nei);
+    }
+  });
+  if (neis.length > 0) {
+    const idsSet = new Set(ids);
+    const newIds = [...new Set(neis.flat(1))].filter((x) => !idsSet.has(x));
+    extendGrid(newIds, dist + 10);
+  }
 };
 
 map.on("draw.create", updateLine);
