@@ -1,30 +1,32 @@
 {
-  "name": "ccg-spider",
+  "name": "",
   "version": "1.0.0",
-  "description": "# Data preparation ## AOI Download eg [GADM](https://gadm.org/download_country_v3.html) and export only level-0 as `GeoPackage`.",
-  "main": ".eslintrc.js",
+  "description": "",
+  "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "tw": "npx tailwindcss -i ./tailwind.config.css -o ./dist/tw.css --watch"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/carderne/ccg-spider.git"
+    "url": ""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/carderne/ccg-spider/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/carderne/ccg-spider#readme",
+  "homepage": "",
   "devDependencies": {
+    "autoprefixer": "^10.4.0",
     "eslint": "^7.32.0",
-    "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-vue": "^8.0.3",
+    "eslint-plugin-vue": "^8.4.1",
     "lite-server": "^2.6.1",
-    "prettier": "^2.4.1"
+    "postcss": "^8.4.4",
+    "prettier": "^2.4.1",
+    "tailwindcss": "^3.0.0"
   }
 }

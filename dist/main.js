@@ -2,17 +2,20 @@
 
 import hex from "./hex.js";
 import { pars, filts, attrs } from "./config.js";
+import { run_model } from "./model.js";
 
 const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 
 const toObjSingle = (arr, key) =>
   arr.reduce((acc, el) => ((acc[el.var] = el[key]), acc), {});
 
+// eslint-disable-next-line
 Vue.component("slider", {
+  // eslint-disable-next-line
   props: ["obj"],
   template: `
   <div>
-    <div>{{ obj.label }}: {{ obj.val }} {{ obj.unit }}</div>
+    <div>{{ obj.var }}: {{ obj.val }} {{ obj.unit }}</div>
     <input type="range" :min="obj.min" :max="obj.max"
            class="slider" v-model="obj.val">
   </div>
@@ -24,22 +27,13 @@ const attrsObj = toObj(attrs);
 // eslint-disable-next-line no-unused-vars
 const app = new Vue({
   el: "#sidebar",
-  data: {
-    pars: pars,
-    filts: filts,
-    attrs: attrsObj,
-    colorBy: "profit",
-  },
-  watch: {
-    parVals: function () {
-      this.debouncedUpdate();
-    },
-    filtVals: function () {
-      this.debouncedUpdate();
-    },
-    colorBy: function () {
-      this.debouncedUpdate();
-    },
+  data() {
+    return {
+      pars: pars,
+      filts: filts,
+      attrs: attrsObj,
+      colorBy: "profit",
+    };
   },
   computed: {
     parVals: function () {
@@ -52,6 +46,17 @@ const app = new Vue({
     },
     colorByObj: function () {
       return this.attrs[this.colorBy];
+    },
+  },
+  watch: {
+    parVals: function () {
+      this.debouncedUpdate();
+    },
+    filtVals: function () {
+      this.debouncedUpdate();
+    },
+    colorBy: function () {
+      this.debouncedUpdate();
     },
   },
   created: function () {
@@ -81,32 +86,32 @@ const draw = new MapboxDraw({
   },
   styles: [
     {
-        "id": "gl-draw-line",
-        "type": "line",
-        "filter": ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
-        "layout": {
-          "line-cap": "round",
-          "line-join": "round"
-        },
-        "paint": {
-          "line-color": "#000000",
-          "line-width": 3
-        }
+      id: "gl-draw-line",
+      type: "line",
+      filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+      },
+      paint: {
+        "line-color": "#000000",
+        "line-width": 3,
+      },
     },
     {
-        "id": "gl-draw-line-static",
-        "type": "line",
-        "filter": ["all", ["==", "$type", "LineString"], ["==", "mode", "static"]],
-        "layout": {
-          "line-cap": "round",
-          "line-join": "round"
-        },
-        "paint": {
-          "line-color": "#000000",
-          "line-width": 3
-        }
+      id: "gl-draw-line-static",
+      type: "line",
+      filter: ["all", ["==", "$type", "LineString"], ["==", "mode", "static"]],
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+      },
+      paint: {
+        "line-color": "#000000",
+        "line-width": 3,
+      },
     },
-  ]
+  ],
 });
 map.addControl(draw);
 const joinLineToHex = (line) => {
@@ -197,14 +202,6 @@ map.on("load", () => {
   updateHex(app.parVals, app.filts, app.colorByObj);
 });
 
-const objective = (props, parVals) => {
-  return (
-    props.grid_dist * parVals.grid +
-    props.road_dist * parVals.road +
-    props.pop * parVals.pop
-  );
-};
-
 const filter = (filts) => {
   return ["all"].concat(
     filts.map((f) => [f.op, ["get", f.var], parseInt(f.val)])
@@ -214,8 +211,13 @@ const filter = (filts) => {
 const updateHex = (parVals, filts, colorByObj, updateMap = true) => {
   if (mapLoaded) {
     hex.features.forEach((ft, i) => {
-      hex.features[i].properties.profit = objective(ft.properties, parVals);
+      const res = run_model(
+        hex.features[i].properties,
+        toObjSingle(pars, "val")
+      );
+      hex.features[i].properties.profit = res.profit;
     });
+    console.log(Math.max(...hex.features.map((f) => f.properties.profit)));
     if (updateMap) {
       map.setFilter("hex", filter(filts));
       map.setFilter("hex_label", filter(filts));

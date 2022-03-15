@@ -3,7 +3,10 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  extends: ["plugin:vue/recommended", "airbnb", "prettier"],
+  extends: [
+    "plugin:vue/vue3-recommended",
+    "prettier",
+  ],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -15,7 +18,7 @@ module.exports = {
   rules: {
     "import/extensions": [0, { "<js>": "always" }],
     quotes: [2, "double"],
-    "object-shorthand": ["error", "never"]
-    "func-names": ["error", "never"]
+    "object-shorthand": "off",
+    "func-names": ["error", "never"],
   },
 };
