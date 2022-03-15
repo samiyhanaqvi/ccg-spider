@@ -143,13 +143,6 @@ export const filts = [
 
 export const attrs = [
   {
-    var: "profit",
-    min: 0,
-    max: 15_000_000,
-    minCol: "hsl(0, 29%, 93%)",
-    maxCol: "hsl(0, 100%, 23%)",
-  },
-  {
     var: "grid_dist",
     min: 0,
     max: 100,
@@ -162,5 +155,42 @@ export const attrs = [
     max: 20,
     minCol: "hsl(150, 29%, 93%)",
     maxCol: "hsl(150, 100%, 23%)",
+  },
+  {
+    var: "farm_type",
+    cats: ["cage", "pond"],
+    colors: [
+      "hsla(0, 60%, 60%, 1)",
+      "hsla(100, 60%, 60%, 1)",
+      "hsla(200, 60%, 60%, 0.2)",
+    ],
+  },
+  {
+    var: "fish_output",
+    min: 0,
+    max: 10000,
+    minCol: "hsl(220, 29%, 93%)",
+    maxCol: "hsl(220, 100%, 23%)",
+  },
+  {
+    var: "profit",
+    min: 0,
+    max: 15_000_000,
+    minCol: "hsl(0, 29%, 93%)",
+    maxCol: "hsl(0, 100%, 23%)",
+  },
+  {
+    var: "gov_costs",
+    min: 0,
+    max: 150_000_000,
+    minCol: "hsl(300, 29%, 93%)",
+    maxCol: "hsl(300, 100%, 23%)",
+  },
+  {
+    var: "social",
+    min: 0,
+    max: 15_000_000,
+    minCol: "hsl(320, 29%, 93%)",
+    maxCol: "hsl(320, 100%, 23%)",
   },
 ];

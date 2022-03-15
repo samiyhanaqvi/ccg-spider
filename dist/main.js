@@ -9,6 +9,13 @@ const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 const toObjSingle = (arr, key) =>
   arr.reduce((acc, el) => ((acc[el.var] = el[key]), acc), {});
 
+const zip = (a, b) => a.map((k, i) => [k, b[i]]);
+
+const zipflat = (a, b) =>
+  zip(a, b)
+    .reduce((k, i) => k.concat(i))
+    .concat(b.slice(-1));
+
 // eslint-disable-next-line
 Vue.component("slider", {
   // eslint-disable-next-line
@@ -217,26 +224,40 @@ const filter = (filts) => {
   );
 };
 
+const updatePaint = (attr) => {
+  if ("cats" in attr) {
+    map.setPaintProperty(
+      "hex",
+      "fill-color",
+      ["match"]
+        .concat([["get", attr.var]])
+        .concat(zipflat(attr.cats, attr.colors))
+    );
+  } else {
+    map.setPaintProperty("hex", "fill-color", [
+      "interpolate",
+      ["linear"],
+      ["get", attr.var],
+      attr.min,
+      attr.minCol,
+      attr.max,
+      attr.maxCol,
+    ]);
+  }
+};
+
 const updateHex = (parVals, filts, colorByObj, updateMap = true) => {
   if (mapLoaded) {
-    hex.features.forEach((ft, i) => {
-      const res = run_model(hex.features[i].properties, parVals);
-      hex.features[i].properties.profit = res.profit;
+    hex.features.forEach((ft) => {
+      const res = run_model(ft.properties, parVals);
+      ft.properties = { ...ft.properties, ...res };
     });
-    console.log(Math.max(...hex.features.map((f) => f.properties.profit)));
     if (updateMap) {
-      map.setFilter("hex", filter(filts));
-      map.setFilter("hex_label", filter(filts));
+      const mbFilter = filter(filts);
+      map.setFilter("hex", mbFilter);
+      map.setFilter("hex_label", mbFilter);
       map.getSource("hex").setData(hex);
-      map.setPaintProperty("hex", "fill-color", [
-        "interpolate",
-        ["linear"],
-        ["get", colorByObj.var],
-        colorByObj.min,
-        colorByObj.minCol,
-        colorByObj.max,
-        colorByObj.maxCol,
-      ]);
+      updatePaint(colorByObj);
     }
   }
 };
