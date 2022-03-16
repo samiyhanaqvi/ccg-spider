@@ -49,6 +49,7 @@ const app = Vue.createApp({
       idLabels: false,
       attrs: attrsObj,
       colorBy: "profit",
+      drawing: false,
     };
   },
   computed: {
@@ -73,20 +74,24 @@ const app = Vue.createApp({
     parVals: function () {
       this.debouncedUpdate();
     },
-    filtVals: function () {
-      this.debouncedUpdate();
-    },
     colorBy: function () {
-      this.debouncedUpdate();
+      updatePaint(this.colorByObj);
     },
   },
   created: function () {
     this.debouncedUpdate = _.debounce(this.update, 500);
   },
   methods: {
+    draw: function () {
+      this.drawing = !this.drawing;
+      setDrawing(this.drawing);
+    },
+    deleteDraw: function () {
+      this.drawing = false;
+      deleteDrawing();
+    },
     update: function () {
       updateHex(this.parVals);
-      updatePaint(this.colorByObj);
     },
   },
 }).mount("#sidebar");
@@ -100,12 +105,26 @@ const map = new mapboxgl.Map({
   zoom: 6,
 });
 
+const setDrawing = (drawing) => {
+  draw.changeMode(drawing ? "draw_line_string" : "static");
+};
+
+const deleteDrawing = () => {
+  draw.deleteAll();
+};
+
+const StaticMode = {};
+StaticMode.onSetup = function () {
+  this.setActionableState();
+  return {};
+};
+StaticMode.toDisplayFeatures = function (state, geojson, display) {
+  display(geojson);
+};
+
 const draw = new MapboxDraw({
   displayControlsDefault: false,
-  controls: {
-    line_string: true,
-    trash: true,
-  },
+  modes: { ...MapboxDraw.modes, static: StaticMode },
   styles: [
     {
       id: "gl-draw-line",
@@ -136,6 +155,7 @@ const draw = new MapboxDraw({
   ],
 });
 map.addControl(draw);
+
 const joinLineToHex = (line) => {
   const length = Math.floor(turf.lineDistance(line, "km"));
   const points = {
@@ -151,6 +171,7 @@ const joinLineToHex = (line) => {
   const ids = [...new Set(tagged)].filter(Number);
   return ids;
 };
+
 const updateLine = () => {
   const lines = draw.getAll();
   const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
@@ -178,6 +199,12 @@ const extendGrid = (ids, dist) => {
 map.on("draw.create", updateLine);
 map.on("draw.delete", updateLine);
 map.on("draw.update", updateLine);
+map.on("draw.modechange", (e) => {
+  if (e.mode === "simple_select")
+    setTimeout(() => {
+      draw.changeMode("draw_line_string");
+    }, 100);
+});
 
 let mapLoaded = false;
 map.on("load", () => {
@@ -228,24 +255,29 @@ map.on("load", () => {
   updateHex(app.parVals);
   updatePaint(app.colorByObj);
 
-  const pointer = () => (map.getCanvas().style.cursor = "pointer");
-  const nopointer = () => (map.getCanvas().style.cursor = "");
+  const pointer = () => {
+    if (!app.drawing) map.getCanvas().style.cursor = "pointer";
+  };
+  const nopointer = () => {
+    if (!app.drawing) map.getCanvas().style.cursor = "";
+  };
 
   map.on("mouseenter", "hex", pointer);
   map.on("mouseleave", "hex", nopointer);
 
-
   const addPopup = (e) => {
-    const props = e.features[0].properties;
-    const description = `
-    <div>Grid dist: ${fmt(props.profit)} USD</div>
-    <div>Farm type: ${props.farm_type}</div>
-    <div>Fish output: ${fmt(props.fish_output)} tons/year</div>
-    <div>Profit: ${fmt(props.profit)} USD/year</div>
-    <div>Gov costs: ${fmt(props.gov_costs)} USD/year</div>
-    <div>Social: ${fmt(props.social)} USD/year</div>
-    `;
-    new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(description).addTo(map);
+    if (!app.drawing) {
+      const props = e.features[0].properties;
+      const description = `
+        <div>Grid dist: ${fmt(props.profit)} USD</div>
+        <div>Farm type: ${props.farm_type}</div>
+        <div>Fish output: ${fmt(props.fish_output)} tons/year</div>
+        <div>Profit: ${fmt(props.profit)} USD/year</div>
+        <div>Gov costs: ${fmt(props.gov_costs)} USD/year</div>
+        <div>Social: ${fmt(props.social)} USD/year</div>
+      `;
+      new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(description).addTo(map);
+    }
   };
   map.on("click", "hex", (e) => addPopup(e));
 });
