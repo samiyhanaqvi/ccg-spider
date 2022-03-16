@@ -131,7 +131,8 @@ export const pars = [
 
 export const attrs = [
   {
-    var: "grid_dist",
+    var: "grid_dist_calc",
+    label: "grid distance",
     min: 0,
     max: 100,
     minCol: "hsl(90, 29%, 93%)",
@@ -139,6 +140,7 @@ export const attrs = [
   },
   {
     var: "farm_type",
+    label: "farm type",
     cats: ["cage", "pond"],
     colors: [
       "hsla(0, 60%, 60%, 1)",
@@ -148,6 +150,7 @@ export const attrs = [
   },
   {
     var: "fish_output",
+    label: "fish output",
     min: 0,
     max: 10000,
     minCol: "hsl(220, 29%, 93%)",
@@ -155,6 +158,7 @@ export const attrs = [
   },
   {
     var: "profit",
+    label: "profit",
     min: 0,
     max: 15_000_000,
     minCol: "hsl(0, 29%, 93%)",
@@ -162,6 +166,7 @@ export const attrs = [
   },
   {
     var: "gov_costs",
+    label: "gov costs",
     min: 0,
     max: 150_000_000,
     minCol: "hsl(300, 29%, 93%)",
@@ -169,6 +174,7 @@ export const attrs = [
   },
   {
     var: "social",
+    label: "social benefits",
     min: 0,
     max: 15_000_000,
     minCol: "hsl(320, 29%, 93%)",

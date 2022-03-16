@@ -39,6 +39,13 @@ const Slider = {
 
 const attrsObj = toObj(attrs);
 
+const resetGridDist = () => {
+  hex.features.forEach((ft) => {
+    ft.properties.grid_dist_calc = ft.properties.grid_dist;
+  });
+};
+resetGridDist();
+
 const app = Vue.createApp({
   components: {
     Slider,
@@ -111,6 +118,8 @@ const setDrawing = (drawing) => {
 
 const deleteDrawing = () => {
   draw.deleteAll();
+  resetGridDist();
+  map.getSource("hex").setData(hex);
 };
 
 const StaticMode = {};
@@ -182,8 +191,8 @@ const updateLine = () => {
 const extendGrid = (ids, dist) => {
   const neis = [];
   ids.forEach((i) => {
-    if (hex.features[i].properties.grid_dist > dist) {
-      hex.features[i].properties.grid_dist = dist;
+    if (hex.features[i].properties.grid_dist_calc > dist) {
+      hex.features[i].properties.grid_dist_calc = dist;
       const p = hex.features[i].properties;
       const nei = [p.n0, p.n1, p.n2, p.n3, p.n4, p.n5];
       neis.push(nei);
@@ -197,8 +206,8 @@ const extendGrid = (ids, dist) => {
 };
 
 map.on("draw.create", updateLine);
-map.on("draw.delete", updateLine);
-map.on("draw.update", updateLine);
+//map.on("draw.delete", updateLine);
+//map.on("draw.update", updateLine);
 map.on("draw.modechange", (e) => {
   if (e.mode === "simple_select")
     setTimeout(() => {

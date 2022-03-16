@@ -34,8 +34,8 @@
                     </div>
                     <!--Dropdown-->
                     <select v-model="colorBy" class="pl-1 mr-2 py-2 bg-transparent">
-                        <option v-for="a in Object.keys(attrs)" :value="a">
-                        {{ a }}
+                        <option v-for="[key, obj] in Object.entries(attrs)" :value="obj.var">
+                        {{ obj.label }}
                         </option>
                     </select>
                 </div>
