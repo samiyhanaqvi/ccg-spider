@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Spider</title>
+
         <script src="vendor/vue.js"></script>
         <script src="vendor/lodash.min.js"></script>
         <script src="vendor/mapbox-gl.js"></script>
@@ -12,28 +13,64 @@
         <script src="vendor/turf.min.js"></script>
         <script src="vendor/mapbox-gl-draw.js"></script>
         <link rel="stylesheet" href="vendor/mapbox-gl-draw.css">
+
     </head>
     <body class="h-screen w-screen flex">
-        <div id="sidebar" class="w-80 h-screen overflow-y-scroll p-2">
-            <h1 class="text-4xl block mx-auto text-center">Spider</h1>
-            <div class="my-4">
-                <h2 class="text-2xl">Colour by</h2>
-                <select v-model="colorBy" class="p-2">
-                    <option v-for="a in Object.keys(attrs)" :value="a">
-                    {{ a }}
-                    </option>
-                </select>
+
+        <!--Sidebar-->
+        <div id="sidebar" class="flex flex-col w-80 h-screen shadow-2xl">
+
+            <!--Top sidebar section-->
+            <div class="h-max p-4">
+
+                <!--Title-->
+                <h1 class="text-4xl block mx-auto text-center font-bold">Spider</h1>
+
+                <!--Colour by dropdown-->
+                <div class="my-4 mx-auto w-max flex flex-row border-2 border-slate-400 rounded-xl">
+                    <!--Label-->
+                    <div class="flex flex-col content-center justify-center align-right py-2 pl-2">
+                        <span>Colour by</span>
+                    </div>
+                    <!--Dropdown-->
+                    <select v-model="colorBy" class="pl-1 mr-2 py-2 bg-transparent">
+                        <option v-for="a in Object.keys(attrs)" :value="a">
+                        {{ a }}
+                        </option>
+                    </select>
+                </div>
+
+                <!--ID labels checkbox-->
+                <div class="w-max mx-auto">
+                    <input type="checkbox" v-model="idLabels" class="mr-2">
+                    <label for="checkbox">Show ID labels</label>
+                </div>
             </div>
-            <div class="my-4">
-                <h2 class="text-2xl">Parameters</h2>
-                <Slider v-for="obj in pars" :obj="obj"></Slider>
-            </div>
-            <div>
-                <input type="checkbox" v-model="idLabels">
-                <label for="checkbox">Show ID labels</label>
+
+            <!--Bottom sidebar section-->
+            <div class="flex flex-col flex-grow">
+
+                <!--Parameters header-->
+                <div class="h-max px-4 pb-2">
+                    <h2 class="text-2xl">Parameters</h2>
+                </div>
+
+                <!--Scrolling container-->
+                <div class="flex-grow h-1 overflow-y-scroll px-4">
+
+                    <!--List of parameters-->
+                    <div class="divide-y text-sm">
+                        <Slider v-for="obj in pars" :obj="obj" class="my-2 pt-2">
+                        </Slider>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!--Mapbox container-->
         <div id="map" class="flex flex-grow"></div>
+
+        <!--Load main script-->
         <script type="module" src="./main.js"></script>
     </body>
 </html>

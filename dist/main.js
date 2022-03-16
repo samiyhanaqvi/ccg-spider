@@ -9,6 +9,8 @@ const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 const toObjSingle = (arr, key) =>
   arr.reduce((acc, el) => ((acc[el.var] = el[key]), acc), {});
 
+const fmt = (val) => val && Math.round(val).toLocaleString("en");
+
 const zip = (a, b) => a.map((k, i) => [k, b[i]]);
 
 const zipflat = (a, b) =>
@@ -19,17 +21,16 @@ const zipflat = (a, b) =>
 const Slider = {
   props: ["obj"],
   template: `
-  <div class="bg-slate-300 my-2 -mx-2 p-1">
-    <div class="text-sm">
+  <div>
+    <div>
       {{ obj.label }}:
-      {{ obj.val }}
+      {{ obj.val.toLocaleString("en") }}
       {{ obj.unit }}
     </div>
     <input type="range"
            :min="obj.min"
            :max="obj.max"
            :step="(obj.max - obj.min)/100"
-           class="slider"
            v-model="obj.val"
     >
   </div>
@@ -233,7 +234,6 @@ map.on("load", () => {
   map.on("mouseenter", "hex", pointer);
   map.on("mouseleave", "hex", nopointer);
 
-  const fmt = (val) => val && Math.round(val).toLocaleString("en");
 
   const addPopup = (e) => {
     const props = e.features[0].properties;

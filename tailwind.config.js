@@ -1,3 +1,10 @@
 module.exports = {
-  content: ["./dist/index.html", "./dist/main.js"],
+  content: ["./dist/index.html"],
+  theme: {
+    extend: {
+      fontFamily: {
+        'sans': ["Titillium Web", "sans-serif"],
+      }
+    }
+  }
 };
