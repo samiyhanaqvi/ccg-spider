@@ -25,9 +25,9 @@ const constrain_output = (town, ass) => {
       max_from_farm = town.precip * 20;
     }
 
-    let labor = town.hhs * ass.labor_per_hh; // number of laborers available
-    let labor_needed = farm_type == "cage" ? 3 : 1; // worker/ton/yr
-    let max_fish_from_labor = labor / labor_needed; // ton/yr
+    const labor = town.hhs * ass.labor_per_hh; // number of laborers available
+    const labor_needed = farm_type == "cage" ? 3 : 1; // worker/ton/yr
+    const max_fish_from_labor = labor / labor_needed; // ton/yr
 
     fish_output = Math.min(
       ass.max_fish_output,
@@ -57,9 +57,9 @@ const npv = (yrs, r) => {
 
 const get_road_type = (town, ass, farm_type, fish_output) => {
   // type
-  let traffic = town.pop / ass.traffic_pp; // vehicles/day
-  let fish_vehicles = farm_type == "cage" ? 7.7 : 10.2; // num/ton of fish/yr
-  let total_traffic =
+  const traffic = town.pop / ass.traffic_pp; // vehicles/day
+  const fish_vehicles = farm_type == "cage" ? 7.7 : 10.2; // num/ton of fish/yr
+  const total_traffic =
     traffic + fish_vehicles * fish_output * ass.truck_econ_multi;
   if (total_traffic > 200 * 365) {
     return "paved";
@@ -107,10 +107,10 @@ const get_land_required = (farm_type) => {
 
 const get_land_rent = (ass, farm_type) => {
   // USD/ton/yr
-  let land_required = get_land_required(farm_type);
-  let land_value = 4000; // USD/acre
-  let land_cost = land_required * land_value; // USD/ton
-  let land_rent = land_cost * ass.interest_rate; // USD/ton/yr
+  const land_required = get_land_required(farm_type);
+  const land_value = 4000; // USD/acre
+  const land_cost = land_required * land_value; // USD/ton
+  const land_rent = land_cost * ass.interest_rate; // USD/ton/yr
   return land_rent;
 };
 
@@ -121,23 +121,23 @@ const get_elec_capex = (town, ass) => {
     return 0;
   } else if (town.grid_dist < 20) {
     // close enough to extend grid
-    let mv_cost_pkm = 15_000; // USD/km2
-    let conn_cost_phh = 4800; // USD/hh
-    let mv_cost = mv_cost_pkm * town.grid_dist; // USD
-    let conn_cost = conn_cost_phh * town.hhs; // USD
+    const mv_cost_pkm = 15_000; // USD/km2
+    const conn_cost_phh = 4800; // USD/hh
+    const mv_cost = mv_cost_pkm * town.grid_dist; // USD
+    const conn_cost = conn_cost_phh * town.hhs; // USD
     return mv_cost + conn_cost;
   } else {
-    let kw_needed = town.hhs * 0.2; // kW
-    let conn_cost_phh = 500; // USD/hh
-    let mg_cost = ass.mg_cost_pkw * kw_needed; // USD
-    let conn_cost = conn_cost_phh * town.hhs; // USD
+    const kw_needed = town.hhs * 0.2; // kW
+    const conn_cost_phh = 500; // USD/hh
+    const mg_cost = ass.mg_cost_pkw * kw_needed; // USD
+    const conn_cost = conn_cost_phh * town.hhs; // USD
     return mg_cost + conn_cost;
   }
 };
 
 const get_elec_cost_for_farm = (town, ass) => {
   // USD/ton/yr
-  let total_power_req = Math.max(2, ass.ice_power + ass.aeration_power); // kW/ton
+  const total_power_req = Math.max(2, ass.ice_power + ass.aeration_power); // kW/ton
   if (town.grid_dist < 1) {
     // already grid-connected
     return 0;
@@ -145,33 +145,33 @@ const get_elec_cost_for_farm = (town, ass) => {
     // close enough to extend grid
     return 0;
   } else {
-    let mg_cap_cost = ass.mg_cost_pkw * total_power_req;
-    let mg_repayment = mg_cap_cost / npv(ass.duration, ass.interest_rate);
+    const mg_cap_cost = ass.mg_cost_pkw * total_power_req;
+    const mg_repayment = mg_cap_cost / npv(ass.duration, ass.interest_rate);
     return mg_repayment;
   }
 };
 
 const get_farm_cap_cost_annual = (ass, farm_type) => {
   // USD/ton/yr
-  let farm_cap_cost = farm_type == "cage" ? 138.89 : 1950;
-  let farm_annual = farm_cap_cost / npv(ass.duration, ass.interest_rate); // USD/ton/yr
+  const farm_cap_cost = farm_type == "cage" ? 138.89 : 1950;
+  const farm_annual = farm_cap_cost / npv(ass.duration, ass.interest_rate); // USD/ton/yr
   return farm_annual;
 };
 
 const get_transport_costs = (town) => {
   // USD/ton/yr
-  let urban_to_city = town.city_dist - town.urban_dist;
-  let short_dist_flat = 7.88; // USD/ton
-  let short_dist_spec = 1.214; // USD/ton/km
-  let long_dist_flat = 13.54; // USD/ton
-  let long_dist_spec = 0.086; // USD/ton/km
-  let transport_to_urban = short_dist_flat + short_dist_spec * town.urban_dist; // USD/ton
-  let transport_to_city = long_dist_flat + long_dist_spec * urban_to_city; // USD/ton
-  let short_dist_transport_multiplier = 1.5; // to account for ice and fish
-  let long_dist_transport_multiplier = 2; // ditto
-  let transport_cost_urban =
+  const urban_to_city = town.city_dist - town.urban_dist;
+  const short_dist_flat = 7.88; // USD/ton
+  const short_dist_spec = 1.214; // USD/ton/km
+  const long_dist_flat = 13.54; // USD/ton
+  const long_dist_spec = 0.086; // USD/ton/km
+  const transport_to_urban = short_dist_flat + short_dist_spec * town.urban_dist; // USD/ton
+  const transport_to_city = long_dist_flat + long_dist_spec * urban_to_city; // USD/ton
+  const short_dist_transport_multiplier = 1.5; // to account for ice and fish
+  const long_dist_transport_multiplier = 2; // ditto
+  const transport_cost_urban =
     transport_to_urban * short_dist_transport_multiplier; // USD/ton/yr
-  let transport_cost_city = transport_to_city * long_dist_transport_multiplier; // USD/ton/yr
+  const transport_cost_city = transport_to_city * long_dist_transport_multiplier; // USD/ton/yr
   return transport_cost_urban + transport_cost_city; // USD/ton/yr
 };
 
@@ -186,10 +186,10 @@ const get_revenue = (ass, farm_type) => {
 
 const get_equipment_costs = (ass) => {
   // USD/ton/yr
-  let capex_ice = 1000; // USD/ton capacity
-  let capex_aeration = 200; // USD/ton capacity
-  let capex_equipment = capex_ice + capex_aeration; // USD/ton capacity
-  let equipment_annual = capex_equipment / npv(ass.duration, ass.interest_rate); // USD/ton/yr
+  const capex_ice = 1000; // USD/ton capacity
+  const capex_aeration = 200; // USD/ton capacity
+  const capex_equipment = capex_ice + capex_aeration; // USD/ton capacity
+  const equipment_annual = capex_equipment / npv(ass.duration, ass.interest_rate); // USD/ton/yr
   return equipment_annual;
 };
 
@@ -242,7 +242,7 @@ const get_social_benefit = (town) => {
   return total_social_benefit;
 };
 
-export const run_model = (town, ass) => {
+export default (town, ass) => {
   town.hhs = town.pop / 5;
   ass.interest_rate /= 100;
   // Some decisions

@@ -1,8 +1,8 @@
-/* global mapboxgl Vue hex */
+/* global Vue _ mapboxgl MapboxDraw turf */
 
 import hex from "./hex.js";
 import { pars, attrs } from "./config.js";
-import { run_model } from "./model.js";
+import model from "./model.js";
 
 const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
 
@@ -16,9 +16,7 @@ const zipflat = (a, b) =>
     .reduce((k, i) => k.concat(i))
     .concat(b.slice(-1));
 
-// eslint-disable-next-line
 const Slider = {
-  // eslint-disable-next-line
   props: ["obj"],
   template: `
   <div class="bg-slate-300 my-2 -mx-2 p-1">
@@ -40,7 +38,6 @@ const Slider = {
 
 const attrsObj = toObj(attrs);
 
-// eslint-disable-next-line no-unused-vars
 const app = Vue.createApp({
   components: {
     Slider,
@@ -140,7 +137,7 @@ const draw = new MapboxDraw({
 map.addControl(draw);
 const joinLineToHex = (line) => {
   const length = Math.floor(turf.lineDistance(line, "km"));
-  let points = {
+  const points = {
     type: "FeatureCollection",
     features: [],
   };
@@ -153,7 +150,7 @@ const joinLineToHex = (line) => {
   const ids = [...new Set(tagged)].filter(Number);
   return ids;
 };
-const updateLine = (e) => {
+const updateLine = () => {
   const lines = draw.getAll();
   const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
   extendGrid(ids, 0);
@@ -161,7 +158,7 @@ const updateLine = (e) => {
 };
 
 const extendGrid = (ids, dist) => {
-  let neis = [];
+  const neis = [];
   ids.forEach((i) => {
     if (hex.features[i].properties.grid_dist > dist) {
       hex.features[i].properties.grid_dist = dist;
@@ -280,7 +277,7 @@ const updateHex = (parVals) => {
     hex.features.forEach((ft) => {
       ft.properties = {
         ...ft.properties,
-        ...run_model(ft.properties, parVals),
+        ...model(ft.properties, parVals),
       };
     });
     map.getSource("hex").setData(hex);

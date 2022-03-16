@@ -4,21 +4,18 @@ module.exports = {
     es2021: true,
   },
   extends: [
+    "eslint:recommended",
     "plugin:vue/vue3-recommended",
     "prettier",
   ],
   parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
     ecmaVersion: 12,
     sourceType: "module",
   },
   plugins: ["vue", "prettier", "import"],
   rules: {
-    "import/extensions": [0, { "<js>": "always" }],
-    quotes: [2, "double"],
-    "object-shorthand": "off",
-    "func-names": ["error", "never"],
+    "prefer-const": "error",
+    "no-undefined": "error",
+    "no-console": "error",
   },
 };
