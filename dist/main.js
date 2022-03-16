@@ -22,32 +22,22 @@ const Slider = {
   props: ["obj"],
   template: `
   <div>
-    <div>
-      {{ obj.label }}:
-      {{ obj.val.toLocaleString("en") }}
-      {{ obj.unit }}
-    </div>
-    <input type="range"
-           :min="obj.min"
-           :max="obj.max"
-           :step="(obj.max - obj.min)/100"
-           v-model="obj.val"
-    >
+    <label>
+      <div>
+        {{ obj.label }}:
+        {{ obj.val.toLocaleString("en") }}
+        {{ obj.unit }}
+      </div>
+      <input type="range"
+             :min="obj.min"
+             :max="obj.max"
+             :step="(obj.max - obj.min)/100"
+             v-model="obj.val"
+      >
+    </label>
   </div>
   `,
 };
-
-const attrsObj = toObj(attrs);
-
-hex.features.forEach((ft) => {
-  ft.properties.grid_dist_orig = ft.properties.grid_dist;
-});
-const resetGridDist = () => {
-  hex.features.forEach((ft) => {
-    ft.properties.grid_dist = ft.properties.grid_dist_orig;
-  });
-};
-resetGridDist();
 
 const app = Vue.createApp({
   components: {
@@ -57,7 +47,7 @@ const app = Vue.createApp({
     return {
       pars: pars,
       idLabels: false,
-      attrs: attrsObj,
+      attrs: toObj(attrs),
       colorBy: "profit",
       drawing: false,
     };
@@ -120,6 +110,16 @@ const map = new mapboxgl.Map({
 
 const setDrawing = (drawing) => {
   draw.changeMode(drawing ? "draw_line_string" : "static");
+};
+
+hex.features.forEach((ft) => {
+  ft.properties.grid_dist_orig = ft.properties.grid_dist;
+});
+
+const resetGridDist = () => {
+  hex.features.forEach((ft) => {
+    ft.properties.grid_dist = ft.properties.grid_dist_orig;
+  });
 };
 
 const deleteDrawing = () => {

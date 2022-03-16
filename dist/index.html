@@ -3,15 +3,17 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Analyse High-Impact Econonomic Opportunities">
+
         <title>Spider</title>
-        <script src="vendor/vue.js"></script>
-        <script src="vendor/lodash.min.js"></script>
-        <script src="vendor/mapbox-gl.js"></script>
-        <link href="vendor/mapbox-gl.css" rel="stylesheet" />
-        <link rel="stylesheet" href="./tw.css">
-        <script src="vendor/turf.min.js"></script>
-        <script src="vendor/mapbox-gl-draw.js"></script>
+        <script src="vendor/vue.js" defer></script>
+        <script src="vendor/lodash.min.js" defer></script>
+        <script src="vendor/mapbox-gl.js" defer></script>
+        <script src="vendor/turf.min.js" defer></script>
+        <script src="vendor/mapbox-gl-draw.js" defer></script>
+        <link rel="stylesheet" href="vendor/mapbox-gl.css">
         <link rel="stylesheet" href="vendor/mapbox-gl-draw.css">
+        <link rel="stylesheet" href="tw.css">
         <link rel="icon" href="favicon.ico">
     </head>
     <body class="h-screen w-screen flex">
@@ -41,8 +43,10 @@
 
                 <!--ID labels checkbox-->
                 <div class="w-max mx-auto">
-                    <input type="checkbox" v-model="idLabels" class="mr-2">
-                    <label for="checkbox">Show ID labels</label>
+                    <label>
+                        <input id=labels" type="checkbox" v-model="idLabels" class="mr-2">
+                        Show ID labels
+                    </label>
                 </div>
 
                 <!--Drawing-->
