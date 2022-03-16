@@ -17,7 +17,7 @@ const zipflat = (a, b) =>
     .concat(b.slice(-1));
 
 // eslint-disable-next-line
-Vue.component("slider", {
+const Slider = {
   // eslint-disable-next-line
   props: ["obj"],
   template: `
@@ -36,13 +36,15 @@ Vue.component("slider", {
     >
   </div>
   `,
-});
+};
 
 const attrsObj = toObj(attrs);
 
 // eslint-disable-next-line no-unused-vars
-const app = new Vue({
-  el: "#sidebar",
+const app = Vue.createApp({
+  components: {
+    Slider,
+  },
   data() {
     return {
       pars: pars,
@@ -89,7 +91,7 @@ const app = new Vue({
       updatePaint(this.colorByObj);
     },
   },
-});
+}).mount("#sidebar");
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiY2FyZGVybmUiLCJhIjoiY2puMXN5cnBtNG53NDN2bnhlZ3h4b3RqcCJ9.eNjrtezXwvM7Ho1VSxo06w";
