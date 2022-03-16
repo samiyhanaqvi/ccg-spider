@@ -70,6 +70,9 @@ const app = Vue.createApp({
         return "none";
       }
     },
+    drawText: function () {
+      return this.drawing ? "Stop drawing" : "Draw";
+    },
     parVals: function () {
       return toObjSingle(this.pars, "val");
     },
