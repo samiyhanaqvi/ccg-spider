@@ -131,7 +131,7 @@ export const pars = [
 
 export const attrs = [
   {
-    var: "grid_dist_calc",
+    var: "grid_dist",
     label: "grid distance",
     min: 0,
     max: 100,

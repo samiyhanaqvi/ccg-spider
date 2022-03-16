@@ -39,9 +39,12 @@ const Slider = {
 
 const attrsObj = toObj(attrs);
 
+hex.features.forEach((ft) => {
+  ft.properties.grid_dist_orig = ft.properties.grid_dist;
+});
 const resetGridDist = () => {
   hex.features.forEach((ft) => {
-    ft.properties.grid_dist_calc = ft.properties.grid_dist;
+    ft.properties.grid_dist = ft.properties.grid_dist_orig;
   });
 };
 resetGridDist();
@@ -119,7 +122,7 @@ const setDrawing = (drawing) => {
 const deleteDrawing = () => {
   draw.deleteAll();
   resetGridDist();
-  map.getSource("hex").setData(hex);
+  updateHex(app.parVals);
 };
 
 const StaticMode = {};
@@ -191,8 +194,8 @@ const updateLine = () => {
 const extendGrid = (ids, dist) => {
   const neis = [];
   ids.forEach((i) => {
-    if (hex.features[i].properties.grid_dist_calc > dist) {
-      hex.features[i].properties.grid_dist_calc = dist;
+    if (hex.features[i].properties.grid_dist > dist) {
+      hex.features[i].properties.grid_dist = dist;
       const p = hex.features[i].properties;
       const nei = [p.n0, p.n1, p.n2, p.n3, p.n4, p.n5];
       neis.push(nei);
