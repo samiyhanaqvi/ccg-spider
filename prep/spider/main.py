@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import re
 from pathlib import Path
 import warnings
@@ -13,9 +11,8 @@ from spider.features import (
     add_vector_layer,
     fix_column,
     create_hex,
-    add_neighbors,
 )
-from spider.model import Assumptions, Town, run_model
+from spider.neighbors import add_neighbors
 
 app = Typer()
 
@@ -93,9 +90,22 @@ def feat(
 
 
 @app.command()
-def js(in_file: Path):
+def nei(
+    in_file: Path,
+    out_file: Path,
+):
+    """Add neighbouring hexes to each hex."""
+    add_neighbors(gpd.read_file(in_file)).to_file(out_file)
+
+
+@app.command()
+def js(
+    in_file: Path,
+    out_file: Path,
+):
+    """Convert 'in_file' to JS at 'out_file'."""
     gdf = gpd.read_file(in_file)
-    with open("dist/hex.js", "w") as f:
+    with open(out_file, "w") as f:
         gdf_json = gdf.to_json()
         gdf_json = re.sub(
             r'"id": "(\d*)"',
@@ -103,40 +113,3 @@ def js(in_file: Path):
             gdf_json,
         )
         print("export default", gdf_json, file=f)
-
-
-@app.command()
-def nei(
-    in_file: Path,
-    out_file: Path,
-):
-    add_neighbors(gpd.read_file(in_file)).to_file(out_file)
-
-
-@app.command()
-def model(
-    in_file: Path,
-    out_file: Path,
-    sample: bool = Option(False),
-):
-    gdf = gpd.read_file(in_file)
-    ass = Assumptions(mg_cost_pkw=2000)
-
-    if sample:
-        row = gdf.sample(1).iloc[0]
-        town = Town.from_row(row)
-        run_model(town, ass, verbose=True)
-
-    else:
-        data = [run_model(Town.from_row(row), ass) for idx, row in gdf.iterrows()]
-        gdf["farm_type"] = [r.farm_type for r in data]
-        gdf["fish_output"] = [r.fish_output for r in data]
-        gdf["profit"] = [r.profit for r in data]
-        gdf["gov_costs"] = [r.gov_costs for r in data]
-        gdf["social"] = [r.social for r in data]
-        print(f"Saving to {out_file}")
-        gdf.to_file(out_file)
-
-
-if __name__ == "__main__":
-    app()

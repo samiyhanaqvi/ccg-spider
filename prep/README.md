@@ -69,16 +69,16 @@ gdal_calc.py -A *.tif --calc="numpy.sum(A, axis=0)" --outfile=precip_mean.tif
 ```
 
 # Extracting features
-First install requuirements:
+Install this package:
 ```bash
+git clone https://github.com/carderne/ccg-spider.git
+cd ccg-spider/prep
 pip install -e .
 ```
+
 Edit feature definitions in `config.yml` and then:
 ```bash
-./bin/run.py feat processed/hex.gpkg
-```
-
-Run model
-```bash
-./bin/run.py model processed/hex.gpkg processed/out.gpkg
+spi feat processed/hex.gpkg
+spi nei processed/hex.gpkg processed/nei.gpkg
+spi js processed/nei.gpkg ../frontend/dist/hex.js
 ```
