@@ -1,3 +1,24 @@
+// key counties that are always included
+// (bypassing water/precip requirements)
+const keyCounties = [
+  "homa bay",
+  "migori",
+  "kakamega",
+  "kirinyaga",
+  "nyeri",
+  "meru",
+  "tharaka nithi",
+  "kisii",
+  "kisumu",
+  "siaya",
+  "busia",
+  "embu",
+  "kiambu",
+  "machakos",
+  "kajiado",
+  "kitui",
+];
+
 /**
  * Calculate output and farm_type.
  * All major constraints and decisions about technology should be here.
@@ -16,8 +37,8 @@ const constrain_output = (town, pars) => {
   } else if (
     town.water_dist < pars.max_water_dist ||
     town.river_dist < pars.max_water_dist ||
-    town.precip > pars.min_precip // ||
-    // town.adm1.lower() in pars.always_towns
+    town.precip > pars.min_precip  ||
+    keyCounties.includes(town.adm1.toLowerCase())
   ) {
     farm_type = "pond";
   }
@@ -212,13 +233,15 @@ const get_transport_costs = (town) => {
   const short_dist_spec = 1.214; // USD/ton/km
   const long_dist_flat = 13.54; // USD/ton
   const long_dist_spec = 0.086; // USD/ton/km
-  const transport_to_urban = short_dist_flat + short_dist_spec * town.urban_dist; // USD/ton
+  const transport_to_urban =
+    short_dist_flat + short_dist_spec * town.urban_dist; // USD/ton
   const transport_to_city = long_dist_flat + long_dist_spec * urban_to_city; // USD/ton
   const short_dist_transport_multiplier = 1.5; // to account for ice and fish
   const long_dist_transport_multiplier = 2; // ditto
   const transport_cost_urban =
     transport_to_urban * short_dist_transport_multiplier; // USD/ton/yr
-  const transport_cost_city = transport_to_city * long_dist_transport_multiplier; // USD/ton/yr
+  const transport_cost_city =
+    transport_to_city * long_dist_transport_multiplier; // USD/ton/yr
   return transport_cost_urban + transport_cost_city; // USD/ton/yr
 };
 
@@ -242,7 +265,8 @@ const get_equipment_costs = (pars) => {
   const capex_ice = 1000; // USD/ton capacity
   const capex_aeration = 200; // USD/ton capacity
   const capex_equipment = capex_ice + capex_aeration; // USD/ton capacity
-  const equipment_annual = capex_equipment / npv(pars.duration, pars.interest_rate); // USD/ton/yr
+  const equipment_annual =
+    capex_equipment / npv(pars.duration, pars.interest_rate); // USD/ton/yr
   return equipment_annual;
 };
 
