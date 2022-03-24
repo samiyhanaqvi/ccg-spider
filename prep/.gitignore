@@ -1,13 +1,9 @@
 # Custom
-data/*
-processed/*
-raw/*
-output/*
-notebooks/*
-
-# JavaScript
-/node_modules
-package-lock.json
+data/
+processed/
+raw/
+output/
+notebooks/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
