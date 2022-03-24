@@ -379,16 +379,20 @@ export default (town, pars) => {
     return {
       farm_type: farm_type,
       fish_output: Math.max(0, fish_output),
+      revenue: Math.max(0, revenue),
       profit: Math.max(0, profit),
       gov_costs: Math.max(0, gov_costs),
+      gov_annual: Math.max(0, gov_annual),
       social: Math.max(0, total_social_benefit),
     };
   } else {
     return {
       farm_type: "none",
       fish_output: 0,
+      revenue: 0,
       profit: 0,
       gov_costs: 0,
+      gov_annual: 0,
       social: 0,
     };
   }
