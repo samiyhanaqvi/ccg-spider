@@ -61,7 +61,7 @@ const app = Vue.createApp({
       }
     },
     drawText: function () {
-      return this.drawing ? "Stop drawing" : "Draw";
+      return this.drawing ? "Stop drawing" : "Draw grid lines";
     },
     parVals: function () {
       return toObjSingle(this.pars, "val");
