@@ -1,13 +1,13 @@
 /* global Vue _ mapboxgl MapboxDraw turf */
 
 import hex from "./hex.js";
-import { pars, attrs } from "./config.js";
+import { infra, pars, attrs } from "./config.js";
 import model from "./model.js";
 
-const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.var] = el), acc), {});
+const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.col] = el), acc), {});
 
 const toObjSingle = (arr, key) =>
-  arr.reduce((acc, el) => ((acc[el.var] = el[key]), acc), {});
+  arr.reduce((acc, el) => ((acc[el.col] = el[key]), acc), {});
 
 const fmt = (val) => val && Math.round(val).toLocaleString("en");
 
@@ -48,8 +48,9 @@ const app = Vue.createApp({
       pars: pars,
       idLabels: false,
       attrs: toObj(attrs),
-      colorBy: "profit",
-      drawing: false,
+      colorBy: "grid_dist",
+      infra: infra,
+      drawing: null,
     };
   },
   computed: {
@@ -60,8 +61,8 @@ const app = Vue.createApp({
         return "none";
       }
     },
-    drawText: function () {
-      return this.drawing ? "Stop drawing" : "Draw grid lines";
+    drawText: function (col) {
+      return this.drawing == col ? "Stop drawing" : "Draw";
     },
     parVals: function () {
       return toObjSingle(this.pars, "val");
@@ -85,13 +86,17 @@ const app = Vue.createApp({
     this.debouncedUpdate = _.debounce(this.update, 500);
   },
   methods: {
-    draw: function () {
-      this.drawing = !this.drawing;
+    draw: function (type) {
+      if (this.drawing == type) {
+        this.drawing = null;
+      } else {
+        this.drawing = type;
+      }
       setDrawing(this.drawing);
     },
     deleteDraw: function () {
-      this.drawing = false;
       deleteDrawing();
+      this.drawing = null;
     },
     update: function () {
       updateHex(this.parVals);
@@ -114,17 +119,18 @@ const setDrawing = (drawing) => {
 
 hex.features.forEach((ft) => {
   ft.properties.grid_dist_orig = ft.properties.grid_dist;
+  ft.properties.road_dist_orig = ft.properties.road_dist;
 });
 
-const resetGridDist = () => {
+const resetProp = (prop) => {
   hex.features.forEach((ft) => {
-    ft.properties.grid_dist = ft.properties.grid_dist_orig;
+    ft.properties[prop] = ft.properties[`${prop}_orig`];
   });
 };
 
 const deleteDrawing = () => {
   draw.deleteAll();
-  resetGridDist();
+  app.drawing && resetProp(app.drawing);
   updateHex(app.parVals);
 };
 
@@ -163,7 +169,7 @@ const draw = new MapboxDraw({
         "line-join": "round",
       },
       paint: {
-        "line-color": "#000000",
+        "line-color": "#FF0000",
         "line-width": 3,
       },
     },
@@ -187,18 +193,20 @@ const joinLineToHex = (line) => {
   return ids;
 };
 
+
 const updateLine = () => {
+  const drawing = app.drawing;
   const lines = draw.getAll();
   const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
-  extendGrid(ids, 0);
+  drawing && extendProp(ids, 0, drawing);
   updateHex(app.parVals, app.colorByObj);
 };
 
-const extendGrid = (ids, dist) => {
+const extendProp = (ids, dist, col) => {
   const neis = [];
   ids.forEach((i) => {
-    if (hex.features[i].properties.grid_dist > dist) {
-      hex.features[i].properties.grid_dist = dist;
+    if (hex.features[i].properties[col] > dist) {
+      hex.features[i].properties[col] = dist;
       const p = hex.features[i].properties;
       const nei = [p.n0, p.n1, p.n2, p.n3, p.n4, p.n5];
       neis.push(nei);
@@ -207,13 +215,11 @@ const extendGrid = (ids, dist) => {
   if (neis.length > 0) {
     const idsSet = new Set(ids);
     const newIds = [...new Set(neis.flat(1))].filter((x) => !idsSet.has(x));
-    extendGrid(newIds, dist + 10);
+    extendProp(newIds, dist + 10, col);
   }
 };
 
 map.on("draw.create", updateLine);
-//map.on("draw.delete", updateLine);
-//map.on("draw.update", updateLine);
 map.on("draw.modechange", (e) => {
   if (e.mode === "simple_select")
     setTimeout(() => {
@@ -287,6 +293,7 @@ map.on("load", () => {
         <div><strong>ID: ${props.index}</strong></div>
         <div>adm1: ${props.adm1}</div>
         <div>Grid dist: ${fmt(props.grid_dist)} km</div>
+        <div>Road dist: ${fmt(props.road_dist)} km</div>
         <div>Farm type: ${props.farm_type}</div>
         <div>Fish output: ${fmt(props.fish_output)} tons/year</div>
         <div>Profit: ${fmt(props.profit)} USD/year</div>
@@ -305,17 +312,17 @@ const updatePaint = (attr) => {
       "hex",
       "fill-color",
       ["match"]
-        .concat([["get", attr.var]])
+        .concat([["get", attr.col]])
         .concat(zipflat(attr.cats, attr.colors))
     );
   } else {
-    const hexVals = hex.features.map((f) => f.properties[attr.var]);
+    const hexVals = hex.features.map((f) => f.properties[attr.col]);
     const hexMax = Math.max(...hexVals);
     const hexMin = Math.min(...hexVals);
     map.setPaintProperty("hex", "fill-color", [
       "interpolate",
       ["linear"],
-      ["get", attr.var],
+      ["get", attr.col],
       hexMin,
       attr.minCol,
       0.5 * hexMax,

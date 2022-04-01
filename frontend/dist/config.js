@@ -1,6 +1,19 @@
+export const infra = [
+  {
+    col: "grid_dist",
+    label: "grid",
+    type: "line",
+  },
+  {
+    col: "road_dist",
+    label: "road",
+    type: "line",
+  },
+];
+
 export const pars = [
   {
-    var: "duration",
+    col: "duration",
     label: "Duration",
     min: 5,
     max: 20,
@@ -8,7 +21,7 @@ export const pars = [
     unit: "years",
   },
   {
-    var: "interest_rate",
+    col: "interest_rate",
     label: "Interest rate",
     min: 0,
     max: 100,
@@ -16,7 +29,7 @@ export const pars = [
     unit: "%",
   },
   {
-    var: "fish_price",
+    col: "fish_price",
     label: "Fish sale price",
     min: 0,
     max: 10000,
@@ -24,7 +37,7 @@ export const pars = [
     unit: "USD/ton",
   },
   {
-    var: "max_fish_output",
+    col: "max_fish_output",
     label: "Max fish output",
     min: 0,
     max: 100000,
@@ -32,7 +45,7 @@ export const pars = [
     unit: "ton/yr",
   },
   {
-    var: "labor_per_hh",
+    col: "labor_per_hh",
     label: "Labour available",
     min: 0,
     max: 10,
@@ -40,15 +53,15 @@ export const pars = [
     unit: "people per hh",
   },
   {
-    var: "min_pop",
+    col: "min_pop",
     label: "Min pop",
     min: 0,
     max: 100000,
-    val: 33000,
+    val: 0,
     unit: "people",
   },
   {
-    var: "max_pop",
+    col: "max_pop",
     label: "Max pop",
     min: 0,
     max: 1000000,
@@ -56,7 +69,7 @@ export const pars = [
     unit: "people",
   },
   {
-    var: "max_lake_dist",
+    col: "max_lake_dist",
     label: "Max Lake Vic dist",
     min: 0,
     max: 100,
@@ -64,7 +77,7 @@ export const pars = [
     unit: "km",
   },
   {
-    var: "max_water_dist",
+    col: "max_water_dist",
     label: "Max lake dist",
     min: 0,
     max: 100,
@@ -72,15 +85,15 @@ export const pars = [
     unit: "km",
   },
   {
-    var: "min_precip",
+    col: "min_precip",
     label: "Min precip",
     min: 0,
     max: 1000,
-    val: 500,
+    val: 0,
     unit: "mm/year",
   },
   {
-    var: "truck_econ_multi",
+    col: "truck_econ_multi",
     label: "Truck traffic multiplier",
     min: 0,
     max: 10,
@@ -88,7 +101,7 @@ export const pars = [
     unit: "x",
   },
   {
-    var: "traffic_pp",
+    col: "traffic_pp",
     label: "Current traffic",
     min: 0,
     max: 1,
@@ -96,7 +109,7 @@ export const pars = [
     unit: "vehicles/person",
   },
   {
-    var: "mg_cost_pkw",
+    col: "mg_cost_pkw",
     label: "MG cost",
     min: 0,
     max: 10000,
@@ -104,7 +117,7 @@ export const pars = [
     unit: "USD/kW",
   },
   {
-    var: "elec_ice",
+    col: "elec_ice",
     label: "Energy for ice",
     min: 0,
     max: 500,
@@ -112,7 +125,7 @@ export const pars = [
     unit: "kWh/ton of fish/year",
   },
   {
-    var: "ice_power",
+    col: "ice_power",
     label: "Power for ice",
     min: 0,
     max: 1,
@@ -120,7 +133,7 @@ export const pars = [
     unit: "kW/ton capacity",
   },
   {
-    var: "aeration_power",
+    col: "aeration_power",
     label: "Power for aeration",
     min: 0,
     max: 10,
@@ -131,7 +144,15 @@ export const pars = [
 
 export const attrs = [
   {
-    var: "grid_dist",
+    col: "road_dist",
+    label: "road distance",
+    min: 0,
+    max: 100,
+    minCol: "hsl(60, 29%, 93%)",
+    maxCol: "hsl(60, 100%, 23%)",
+  },
+  {
+    col: "grid_dist",
     label: "grid distance",
     min: 0,
     max: 100,
@@ -139,7 +160,7 @@ export const attrs = [
     maxCol: "hsl(90, 100%, 23%)",
   },
   {
-    var: "farm_type",
+    col: "farm_type",
     label: "farm type",
     cats: ["cage", "pond"],
     colors: [
@@ -149,7 +170,7 @@ export const attrs = [
     ],
   },
   {
-    var: "fish_output",
+    col: "fish_output",
     label: "fish output",
     min: 0,
     max: 10000,
@@ -157,7 +178,7 @@ export const attrs = [
     maxCol: "hsl(220, 100%, 23%)",
   },
   {
-    var: "revenue",
+    col: "revenue",
     label: "revenue",
     min: 0,
     max: 55_000_000,
@@ -165,7 +186,7 @@ export const attrs = [
     maxCol: "hsl(30, 100%, 23%)",
   },
   {
-    var: "profit",
+    col: "profit",
     label: "profit",
     min: 0,
     max: 15_000_000,
@@ -173,7 +194,7 @@ export const attrs = [
     maxCol: "hsl(0, 100%, 23%)",
   },
   {
-    var: "gov_costs",
+    col: "gov_costs",
     label: "gov costs",
     min: 0,
     max: 150_000_000,
@@ -181,7 +202,7 @@ export const attrs = [
     maxCol: "hsl(300, 100%, 23%)",
   },
   {
-    var: "gov_annual",
+    col: "gov_annual",
     label: "gov costs (annual)",
     min: 0,
     max: 1,
@@ -189,7 +210,7 @@ export const attrs = [
     maxCol: "hsl(270, 100%, 23%)",
   },
   {
-    var: "social",
+    col: "social",
     label: "social benefits",
     min: 0,
     max: 10,
