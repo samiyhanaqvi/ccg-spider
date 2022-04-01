@@ -9,6 +9,9 @@ const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.col] = el), acc), {});
 const toObjSingle = (arr, key) =>
   arr.reduce((acc, el) => ((acc[el.col] = el[key]), acc), {});
 
+const toObjArr = (arr) =>
+  arr.reduce((acc, el) => ((acc[el.col] = []), acc), {});
+
 const fmt = (val) => val && Math.round(val).toLocaleString("en");
 
 const zip = (a, b) => a.map((k, i) => [k, b[i]]);
@@ -89,6 +92,7 @@ const app = Vue.createApp({
     draw: function (col) {
       if (this.drawing == col) {
         this.drawing = null;
+        draw.create();
       } else {
         this.drawing = col;
       }
@@ -151,7 +155,6 @@ const draw = new MapboxDraw({
     {
       id: "gl-draw-grid",
       type: "line",
-      //filter: ["all", ["==", "$type", "LineString"], ["!=", "id", "static"]],
       layout: {
         "line-cap": "round",
         "line-join": "round",
@@ -161,19 +164,6 @@ const draw = new MapboxDraw({
         "line-width": 3,
       },
     },
-    //{
-      //id: "gl-draw-road",
-      //type: "line",
-      //filter: ["all", ["==", "$type", "LineString"], ["==", "mode", "static"]],
-      //layout: {
-        //"line-cap": "round",
-        //"line-join": "round",
-      //},
-      //paint: {
-        //"line-color": "#FF0000",
-        //"line-width": 3,
-      //},
-    //},
   ],
 });
 map.addControl(draw);
@@ -199,11 +189,13 @@ const featsToFc = (feats) => ({
   features: feats,
 });
 
+const drawnLines = toObjArr(infra);
+
 const updateLine = (e) => {
   const drawing = app.drawing;
   if (drawing) {
-    const fc = featsToFc(e.features);
-    map.getSource(`drawn_${drawing}`).setData(fc);
+    drawnLines[drawing] = drawnLines[drawing].concat(e.features);
+    map.getSource(`drawn_${drawing}`).setData(featsToFc(drawnLines[drawing]));
     const lines = draw.getAll();
     const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
     extendProp(ids, 0, drawing);
