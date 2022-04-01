@@ -284,7 +284,9 @@ map.on("load", () => {
     if (!app.drawing) {
       const props = e.features[0].properties;
       const description = `
-        <div>Grid dist: ${fmt(props.profit)} USD</div>
+        <div><strong>ID: ${props.index}</strong></div>
+        <div>adm1: ${props.adm1}</div>
+        <div>Grid dist: ${fmt(props.grid_dist)} km</div>
         <div>Farm type: ${props.farm_type}</div>
         <div>Fish output: ${fmt(props.fish_output)} tons/year</div>
         <div>Profit: ${fmt(props.profit)} USD/year</div>
@@ -307,13 +309,16 @@ const updatePaint = (attr) => {
         .concat(zipflat(attr.cats, attr.colors))
     );
   } else {
+    const hexVals = hex.features.map((f) => f.properties[attr.var]);
+    const hexMax = Math.max(...hexVals);
+    const hexMin = Math.min(...hexVals);
     map.setPaintProperty("hex", "fill-color", [
       "interpolate",
       ["linear"],
       ["get", attr.var],
-      attr.min,
+      hexMin,
       attr.minCol,
-      attr.max,
+      0.5 * hexMax,
       attr.maxCol,
     ]);
   }
