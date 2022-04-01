@@ -3,11 +3,13 @@ export const infra = [
     col: "grid_dist",
     label: "grid",
     type: "line",
+    color: "#FF0000",
   },
   {
     col: "road_dist",
     label: "road",
     type: "line",
+    color: "#0000FF",
   },
 ];
 

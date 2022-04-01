@@ -59,10 +59,8 @@
                                 :class="{'bg-blue-400': drawing == d.col}"
                                 @click="draw(d.col)"
                                 type="button">{{ (drawing == d.col ? 'Stop ' : 'Draw ') + d.label }}</button>
-                    </div>
-                    <div class="flex flex-row mx-auto w-max my-2">
                         <button class="hover:bg-red-400 font-bold rounded border-2 border-red-400 py-1 px-4 mx-4"
-                                @click="deleteDraw()"
+                                @click="deleteDraw(d.col)"
                                 type="button">Delete</button>
                     </div>
                 </div>

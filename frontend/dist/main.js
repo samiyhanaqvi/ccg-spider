@@ -48,7 +48,7 @@ const app = Vue.createApp({
       pars: pars,
       idLabels: false,
       attrs: toObj(attrs),
-      colorBy: "grid_dist",
+      colorBy: "road_dist",
       infra: infra,
       drawing: null,
     };
@@ -86,16 +86,16 @@ const app = Vue.createApp({
     this.debouncedUpdate = _.debounce(this.update, 500);
   },
   methods: {
-    draw: function (type) {
-      if (this.drawing == type) {
+    draw: function (col) {
+      if (this.drawing == col) {
         this.drawing = null;
       } else {
-        this.drawing = type;
+        this.drawing = col;
       }
       setDrawing(this.drawing);
     },
-    deleteDraw: function () {
-      deleteDrawing();
+    deleteDraw: function (col) {
+      deleteDrawing(col);
       this.drawing = null;
     },
     update: function () {
@@ -128,9 +128,10 @@ const resetProp = (prop) => {
   });
 };
 
-const deleteDrawing = () => {
+const deleteDrawing = (col) => {
+  map.getSource(`drawn_${col}`).setData(featsToFc([]));
   draw.deleteAll();
-  app.drawing && resetProp(app.drawing);
+  resetProp(col);
   updateHex(app.parVals);
 };
 
@@ -148,9 +149,9 @@ const draw = new MapboxDraw({
   modes: { ...MapboxDraw.modes, static: StaticMode },
   styles: [
     {
-      id: "gl-draw-line",
+      id: "gl-draw-grid",
       type: "line",
-      filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+      //filter: ["all", ["==", "$type", "LineString"], ["!=", "id", "static"]],
       layout: {
         "line-cap": "round",
         "line-join": "round",
@@ -160,19 +161,19 @@ const draw = new MapboxDraw({
         "line-width": 3,
       },
     },
-    {
-      id: "gl-draw-line-static",
-      type: "line",
-      filter: ["all", ["==", "$type", "LineString"], ["==", "mode", "static"]],
-      layout: {
-        "line-cap": "round",
-        "line-join": "round",
-      },
-      paint: {
-        "line-color": "#FF0000",
-        "line-width": 3,
-      },
-    },
+    //{
+      //id: "gl-draw-road",
+      //type: "line",
+      //filter: ["all", ["==", "$type", "LineString"], ["==", "mode", "static"]],
+      //layout: {
+        //"line-cap": "round",
+        //"line-join": "round",
+      //},
+      //paint: {
+        //"line-color": "#FF0000",
+        //"line-width": 3,
+      //},
+    //},
   ],
 });
 map.addControl(draw);
@@ -193,13 +194,21 @@ const joinLineToHex = (line) => {
   return ids;
 };
 
+const featsToFc = (feats) => ({
+  type: "FeatureCollection",
+  features: feats,
+});
 
-const updateLine = () => {
+const updateLine = (e) => {
   const drawing = app.drawing;
-  const lines = draw.getAll();
-  const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
-  drawing && extendProp(ids, 0, drawing);
-  updateHex(app.parVals, app.colorByObj);
+  if (drawing) {
+    const fc = featsToFc(e.features);
+    map.getSource(`drawn_${drawing}`).setData(fc);
+    const lines = draw.getAll();
+    const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
+    extendProp(ids, 0, drawing);
+    updateHex(app.parVals, app.colorByObj);
+  }
 };
 
 const extendProp = (ids, dist, col) => {
@@ -230,6 +239,25 @@ map.on("draw.modechange", (e) => {
 let mapLoaded = false;
 map.on("load", () => {
   mapLoaded = true;
+
+  infra.forEach((i) => {
+    const id = `drawn_${i.col}`;
+    map.addSource(id, {
+      type: "geojson",
+      data: featsToFc([]),
+    });
+
+    map.addLayer({
+      id: id,
+      type: "line",
+      source: id,
+      paint: {
+        "line-color": i.color,
+        "line-width": 5,
+      },
+    });
+  });
+
   map.addSource("hex", {
     type: "geojson",
     data: hex,
