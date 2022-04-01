@@ -92,7 +92,6 @@ const app = Vue.createApp({
     draw: function (col) {
       if (this.drawing == col) {
         this.drawing = null;
-        draw.create();
       } else {
         this.drawing = col;
       }
@@ -161,7 +160,8 @@ const draw = new MapboxDraw({
       },
       paint: {
         "line-color": "#000000",
-        "line-width": 3,
+        "line-width": 2,
+        "line-opacity": 1,
       },
     },
   ],
@@ -196,8 +196,7 @@ const updateLine = (e) => {
   if (drawing) {
     drawnLines[drawing] = drawnLines[drawing].concat(e.features);
     map.getSource(`drawn_${drawing}`).setData(featsToFc(drawnLines[drawing]));
-    const lines = draw.getAll();
-    const ids = lines.features.map((f) => joinLineToHex(f.geometry)).flat(1);
+    const ids = e.features.map((f) => joinLineToHex(f.geometry)).flat(1);
     extendProp(ids, 0, drawing);
     updateHex(app.parVals, app.colorByObj);
   }
@@ -245,7 +244,8 @@ map.on("load", () => {
       source: id,
       paint: {
         "line-color": i.color,
-        "line-width": 5,
+        "line-width": 3,
+        "line-opacity": 0.9,
       },
     });
   });
