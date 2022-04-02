@@ -134,6 +134,7 @@ const resetProp = (prop) => {
 const deleteDrawing = (col) => {
   map.getSource(`drawn_${col}`).setData(featsToFc([]));
   draw.deleteAll();
+  drawnLines[col] = [];
   resetProp(col);
   updateHex(app.parVals);
 };
