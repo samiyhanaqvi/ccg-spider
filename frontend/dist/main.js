@@ -3,14 +3,14 @@
 import * as models from "./models/index.js";
 
 let path = window.location.pathname.split("/")[1];
-if (!(path in models))
-  path = "fish";
+if (!(path in models)) path = "fish";
 
 const modelRoot = models[path];
 const hex = modelRoot.hex;
 const model = modelRoot.model;
 const config = modelRoot.config;
 const loc = config.loc;
+const popup = config.popup;
 const infra = config.infra;
 const pars = config.pars;
 const attrs = config.attrs;
@@ -322,17 +322,13 @@ map.on("load", () => {
   const addPopup = (e) => {
     if (!app.drawing) {
       const props = e.features[0].properties;
-      const description = `
-        <div><strong>ID: ${props.index}</strong></div>
-        <div>adm1: ${props.adm1}</div>
-        <div>Grid dist: ${fmt(props.grid_dist)} km</div>
-        <div>Road dist: ${fmt(props.road_dist)} km</div>
-        <div>Farm type: ${props.farm_type}</div>
-        <div>Fish output: ${fmt(props.fish_output)} tons/year</div>
-        <div>Profit: ${fmt(props.profit)} USD/year</div>
-        <div>Gov costs: ${fmt(props.gov_costs)} USD/year</div>
-        <div>Social: ${fmt(props.social)} USD/year</div>
-      `;
+      const rows = popup.map((p) => {
+        const val = p.fmt ? fmt(props[p.col]) : props[p.col];
+        const unit = p.unit ? ` ${p.unit}` : "";
+        return `<div>${p.label}: ${val} ${unit}</div>`;
+      });
+      const description =
+        `<div><strong>ID: ${props.index}</strong></div>` + rows.join("");
       new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(description).addTo(map);
     }
   };

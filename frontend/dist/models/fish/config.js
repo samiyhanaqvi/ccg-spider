@@ -2,6 +2,57 @@ const center = [37.7, 0.31];
 const zoom = 6;
 const loc = {center, zoom};
 
+const popup = [
+  {
+    col: "adm1",
+    label: "adm1",
+    unit: "",
+    fmt: false,
+  },
+  {
+    col: "grid_dist",
+    label: "Grid dist",
+    unit: "km",
+    fmt: true,
+  },
+  {
+    col: "road_dist",
+    label: "Road dist",
+    unit: "km",
+    fmt: true,
+  },
+  {
+    col: "farm_type",
+    label: "Farm type",
+    unit: "",
+    fmt: false,
+  },
+  {
+    col: "fish_output",
+    label: "Fish output",
+    unit: "tons/year",
+    fmt: true,
+  },
+  {
+    col: "profit",
+    label: "Profit",
+    unit: "USD/year",
+    fmt: true,
+  },
+  {
+    col: "gov_costs",
+    label: "Gov costs",
+    unit: "USD/year",
+    fmt: true,
+  },
+  {
+    col: "social",
+    label: "Social",
+    unit: "USD/year",
+    fmt: true,
+  },
+];
+
 const infra = [
   {
     col: "grid_dist",
@@ -225,4 +276,4 @@ const attrs = [
   },
 ];
 
-export default {loc, infra, pars, attrs};
+export default {loc, popup, infra, pars, attrs};

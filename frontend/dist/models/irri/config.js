@@ -2,6 +2,51 @@ const center = [35.5, -13.2];
 const zoom = 9;
 const loc = {center, zoom};
 
+const popup = [
+  {
+    col: "GridDist",
+    label: "Grid dist",
+    unit: "km",
+    fmt: true,
+  },
+  {
+    col: "MarketDist",
+    label: "Market dist",
+    unit: "km",
+    fmt: true,
+  },
+  {
+    col: "cropyield",
+    label: "Crop yield",
+    unit: "tons",
+    fmt: false,
+  },
+  {
+    col: "fish_output",
+    label: "Fish output",
+    unit: "tons/year",
+    fmt: true,
+  },
+  {
+    col: "profit",
+    label: "Profit",
+    unit: "USD/year",
+    fmt: true,
+  },
+  {
+    col: "gov_costs",
+    label: "Gov costs",
+    unit: "USD/year",
+    fmt: true,
+  },
+  {
+    col: "social",
+    label: "Social",
+    unit: "USD/year",
+    fmt: true,
+  },
+];
+
 const infra = [
   {
     col: "grid_dist",
@@ -135,4 +180,4 @@ const attrs = [
   },
 ];
 
-export default {loc, infra, pars, attrs};
+export default {loc, popup, infra, pars, attrs};
