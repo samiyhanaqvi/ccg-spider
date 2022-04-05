@@ -88,11 +88,9 @@ def add_vector_layer(
     assert isinstance(geom, gpd.GeoDataFrame), "geom must be a GeoDataFrame"
 
     if operation == "sjoin":
-        return (
-            geom.to_crs(4326)
-            .sjoin(vector.to_crs(4326))
-            .drop_duplicates("index")[joined_col]
-        )
+        geom = geom.to_crs(4326).sjoin(vector.to_crs(4326))
+        geom = geom[~geom.index.duplicated()][joined_col]
+        return geom
 
     elif operation == "distance":
         with rasterio.open(raster_like) as rd:

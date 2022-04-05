@@ -79,6 +79,10 @@ pip install -e .
 Edit feature definitions in `config.yml` and then:
 ```bash
 spi feat processed/hex.gpkg
-spi nei processed/hex.gpkg processed/nei.gpkg
-spi js processed/nei.gpkg ../frontend/dist/hex.js
+spi js processed/hex.gpkg ../frontend/dist/models/yourmodel/hex.js
+```
+
+**NB**: If you run `spi feat` and provide a path to a file that _already exists_, it will overwrite that file. If you want, you can run the script as below, and then only new columns from `config.yml` will be added (this might be risky).
+```bash
+spi feat processed/hex.gpkg --append
 ```

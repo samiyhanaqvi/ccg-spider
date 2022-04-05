@@ -2,6 +2,8 @@ import re
 from pathlib import Path
 import warnings
 
+warnings.simplefilter("ignore")  # noqa
+
 from typer import Typer, echo, Option
 import yaml
 import geopandas as gpd
@@ -17,14 +19,13 @@ from spider.neighbors import add_neighbors
 app = Typer()
 
 cfg_default = Path(__file__).parents[1] / "config.yml"
-warnings.simplefilter("ignore")
 
 
 @app.command()
 def feat(
     file: Path,
     config: Path = Option(cfg_default, help="Path to config file"),
-    overwrite: bool = Option(False),
+    append: bool = Option(False),
 ) -> None:
     """Add features."""
 
@@ -33,11 +34,13 @@ def feat(
     with config.open() as f:
         cfg = yaml.safe_load(f)
 
-    if file.exists():
+    if append and file.exists():
         geom = gpd.read_file(file)
     else:
         geom = gpd.read_file(cfg["aoi"])
         geom = create_hex(geom, cfg["hex_res"])
+        geom = geom.reset_index(drop=True)
+        geom = add_neighbors(geom)
 
     for f in cfg["features"]:
         col_name = f["name"]
@@ -77,9 +80,8 @@ def feat(
                     per_capita=fix.get("per_capita"),
                 )
 
-    if not file.exists():
-        geom = geom.reset_index()
     geom["fid"] = geom.index
+    geom["index"] = geom.index
     geom = geom.dropna(axis=0, subset=["geometry"])
 
     geom.geometry = geom.simplify(
@@ -87,15 +89,6 @@ def feat(
         preserve_topology=False,
     )
     geom.to_file(file)
-
-
-@app.command()
-def nei(
-    in_file: Path,
-    out_file: Path,
-):
-    """Add neighbouring hexes to each hex."""
-    add_neighbors(gpd.read_file(in_file)).to_file(out_file)
 
 
 @app.command()
