@@ -62,11 +62,17 @@
                 </div>
 
                 <!--ID labels checkbox-->
-                <div class="w-max mx-auto sm:hidden">
+                <div class="flex flex-col w-max mx-auto sm:hidden">
                     <label>
                         <input id=labels" type="checkbox" v-model="idLabels" class="mr-2">
                         Show ID labels
                     </label>
+                    <div class="hover:text-blue-700 hover:cursor-pointer" @click="downloadHex">
+                        Download hex
+                    </div>
+                    <div class="hover:text-blue-700 hover:cursor-pointer" @click="downloadLines">
+                        Download lines
+                    </div>
                 </div>
 
                 <!--Drawing-->

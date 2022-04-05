@@ -564,6 +564,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   width: 4rem;
 }
 
+.w-full {
+  width: 100%;
+}
+
 .flex-grow {
   flex-grow: 1;
 }
@@ -709,6 +713,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.hover\:cursor-pointer:hover {
+  cursor: pointer;
 }
 
 .hover\:bg-blue-400:hover {

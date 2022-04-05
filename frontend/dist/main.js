@@ -116,6 +116,12 @@ const app = Vue.createApp({
     update: function () {
       updateHex(this.parVals);
     },
+    downloadHex: function () {
+      downloadHex();
+    },
+    downloadLines: function () {
+      downloadLines();
+    },
   },
 }).mount("#sidebar");
 
@@ -370,4 +376,31 @@ const updateHex = (parVals) => {
     });
     map.getSource("hex").setData(hex);
   }
+};
+
+const downloadHex = () => {
+  downloadFc(hex, "spider_hex");
+};
+
+const downloadLines = () => {
+  const lines = Object.entries(drawnLines).map(([type, arr]) => {
+    const feats = arr.map((ft) => {
+      ft.properties.type = type;
+      return ft;
+    });
+    return feats;
+  });
+  const fc = turf.featureCollection(lines.flat());
+  downloadFc(fc, "spider_lines");
+};
+
+const downloadFc = (fc, name) => {
+  const str = JSON.stringify(fc);
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(str);
+  const downloadAnchorNode = document.createElement("a");
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", name + "_" + path + ".geojson");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
 };
