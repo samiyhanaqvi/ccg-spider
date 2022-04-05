@@ -19,12 +19,6 @@ const popup = [
     col: "cropyield",
     label: "Crop yield",
     unit: "tons",
-    fmt: false,
-  },
-  {
-    col: "fish_output",
-    label: "Fish output",
-    unit: "tons/year",
     fmt: true,
   },
   {
