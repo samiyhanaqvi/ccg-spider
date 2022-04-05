@@ -4,7 +4,13 @@ export default (town, pars) => {        // this is the only compulsory function
   const gov_costs = 100 * pars.duration;
   const gov_annual = 20;
   const social = 15;
+
+  const tech = profit > 100 ? "something" : "none";
+
   return {                              // these are the minimum values that must be returned
+    tech: tech,                         // this is used to filter what is displayed on the map!
+                                        // hexagons that have tech = "none"
+                                        // will not be displayed!
     revenue: Math.max(0, revenue),
     profit: Math.max(0, profit),
     gov_costs: Math.max(0, gov_costs),

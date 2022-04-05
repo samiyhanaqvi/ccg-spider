@@ -73,9 +73,9 @@ const attrs = [
     maxCol: "hsl(60, 100%, 23%)",  // colour for top of scale
   },
   {
-    col: "farm_type",
-    label: "farm type",
-    cats: ["cage", "pond"],        // this is a categorical colouring scheme
+    col: "tech",
+    label: "technology type",
+    cats: ["something", "else"],   // this is a categorical colouring scheme
                                    // pass a list of categorical values that appear
                                    // in the specified column
     colors: [

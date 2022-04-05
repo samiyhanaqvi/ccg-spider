@@ -4,6 +4,12 @@ const loc = {center, zoom};
 
 const popup = [
   {
+    col: "tech",
+    label: "Irri type",
+    unit: "",
+    fmt: false,
+  },
+  {
     col: "GridDist",
     label: "Grid dist",
     unit: "km",
@@ -115,6 +121,15 @@ const attrs = [
     max: 10,
     minCol: "hsl(90, 29%, 93%)",
     maxCol: "hsl(90, 100%, 23%)",
+  },
+  {
+    col: "tech",
+    label: "irrigation",
+    cats: ["pump"],
+    colors: [
+      "hsla(100, 60%, 60%, 1)",
+      "hsla(200, 60%, 60%, 0.2)",
+    ],
   },
   {
     col: "MarketDist",

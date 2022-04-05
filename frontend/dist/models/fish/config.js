@@ -22,7 +22,7 @@ const popup = [
     fmt: true,
   },
   {
-    col: "farm_type",
+    col: "tech",
     label: "Farm type",
     unit: "",
     fmt: false,
@@ -217,7 +217,7 @@ const attrs = [
     maxCol: "hsl(90, 100%, 23%)",
   },
   {
-    col: "farm_type",
+    col: "tech",
     label: "farm type",
     cats: ["cage", "pond"],
     colors: [

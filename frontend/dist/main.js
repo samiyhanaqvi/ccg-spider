@@ -268,13 +268,13 @@ map.on("load", () => {
     data: hex,
   });
 
-  const filt = ["!=", ["get", "farm_type"], "none"];
+  const filt = ["!=", ["get", "tech"], "none"];
 
   map.addLayer({
     id: "hex",
     type: "fill",
     source: "hex",
-    //filter: filt,
+    filter: filt,
     paint: {
       "fill-color": "rgba(0, 0, 0, 0)",
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],

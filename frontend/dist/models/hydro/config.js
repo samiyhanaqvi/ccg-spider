@@ -22,12 +22,6 @@ const popup = [
     fmt: true,
   },
   {
-    col: "farm_type",
-    label: "Farm type",
-    unit: "",
-    fmt: false,
-  },
-  {
     col: "profit",
     label: "Profit",
     unit: "USD/year",
@@ -106,6 +100,16 @@ const pars = [
 ];
 
 const attrs = [
+  {
+    col: "tech",
+    label: "technology type",
+    cats: ["solar", "wind"],
+    colors: [
+      "hsla(0, 60%, 60%, 1)",
+      "hsla(100, 60%, 60%, 1)",
+      "hsla(200, 60%, 60%, 0.2)",
+    ],
+  },
   {
     col: "road_dist",
     label: "road distance",

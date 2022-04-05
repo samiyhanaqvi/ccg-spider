@@ -377,7 +377,7 @@ export default (town, pars) => {
     // Household elec
     const total_social_benefit = get_social_benefit(town);
     return {
-      farm_type: farm_type,
+      tech: farm_type,
       fish_output: Math.max(0, fish_output),
       revenue: Math.max(0, revenue),
       profit: Math.max(0, profit),
@@ -387,7 +387,7 @@ export default (town, pars) => {
     };
   } else {
     return {
-      farm_type: "none",
+      tech: "none",
       fish_output: 0,
       revenue: 0,
       profit: 0,
