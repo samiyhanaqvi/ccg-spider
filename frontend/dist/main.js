@@ -1,8 +1,19 @@
 /* global Vue _ mapboxgl MapboxDraw turf */
 
-import hex from "./hex.js";
-import { infra, pars, attrs } from "./config.js";
-import model from "./model.js";
+import * as models from "./models/index.js";
+
+let path = window.location.pathname.split("/")[1];
+if (!(path in models))
+  path = "fish";
+
+const modelRoot = models[path];
+const hex = modelRoot.hex;
+const model = modelRoot.model;
+const config = modelRoot.config;
+const loc = config.loc;
+const infra = config.infra;
+const pars = config.pars;
+const attrs = config.attrs;
 
 const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.col] = el), acc), {});
 
@@ -48,10 +59,11 @@ const app = Vue.createApp({
   },
   data() {
     return {
+      path: path,
       pars: pars,
       idLabels: false,
       attrs: toObj(attrs),
-      colorBy: "road_dist",
+      colorBy: attrs[0].col,
       infra: infra,
       drawing: null,
     };
@@ -112,8 +124,8 @@ mapboxgl.accessToken =
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/carderne/cl0rvsxn200ce14jz3q5j5hco?fresh=true",
-  center: [37.7, 0.31],
-  zoom: 6,
+  center: loc.center,
+  zoom: loc.zoom,
 });
 
 const setDrawing = (drawing) => {
@@ -262,7 +274,7 @@ map.on("load", () => {
     id: "hex",
     type: "fill",
     source: "hex",
-    filter: filt,
+    //filter: filt,
     paint: {
       "fill-color": "rgba(0, 0, 0, 0)",
       "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 13, 0.2],

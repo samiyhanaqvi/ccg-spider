@@ -24,6 +24,26 @@
             <!--Top sidebar section-->
             <div class="h-max p-4">
 
+                <!--Links to different model versions-->
+                <div class="flex justify-evenly mb-4 font-bold">
+                    <a class="hover:text-blue-700 p-2 rounded"
+                       :class="{'bg-orange-400': path == 'fish'}"
+                       href="/fish">
+                        Fish
+                    </a>
+                    <a class="hover:text-blue-600 p-2 rounded"
+                       :class="{'bg-orange-400': path == 'irri'}"
+                       href="/irri">
+                        Irrigation
+                    </a>
+                    <a class="hover:text-blue-500 p-2 rounded"
+                       :class="{'bg-orange-400': path == 'hydro'}"
+                       href="/hydro">
+                        Hydrogen
+                    </a>
+                </div>
+
+
                 <!--Title-->
                 <h1 class="text-4xl block mx-auto text-center font-bold">Spider</h1>
 
