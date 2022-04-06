@@ -62,6 +62,7 @@ const app = Vue.createApp({
       path: path,
       pars: pars,
       idLabels: false,
+      scaleColors: false,
       attrs: toObj(attrs),
       colorBy: attrs[0].col,
       infra: infra,
@@ -70,11 +71,7 @@ const app = Vue.createApp({
   },
   computed: {
     idLabelsText: function () {
-      if (this.idLabels) {
-        return "visible";
-      } else {
-        return "none";
-      }
+      return this.idLabels ? "visible" : "none";
     },
     drawText: function (col) {
       return this.drawing == col ? "Stop drawing" : "Draw";
@@ -87,8 +84,11 @@ const app = Vue.createApp({
     },
   },
   watch: {
-    idLabelsText: function () {
+    idLabels: function () {
       map.setLayoutProperty("hex_label", "visibility", this.idLabelsText);
+    },
+    scaleColors: function () {
+      updatePaint(this.colorByObj);
     },
     parVals: function () {
       this.debouncedUpdate();
@@ -351,16 +351,20 @@ const updatePaint = (attr) => {
         .concat(zipflat(attr.cats, attr.colors))
     );
   } else {
-    const hexVals = hex.features.map((f) => f.properties[attr.col]);
-    const hexMax = Math.max(...hexVals);
-    const hexMin = Math.min(...hexVals);
+    let minVal = attr.min;
+    let maxVal = attr.max;
+    if (app.scaleColors) {
+      const hexVals = hex.features.map((f) => f.properties[attr.col]);
+      minVal = Math.min(...hexVals);
+      maxVal = 0.7 * Math.max(...hexVals);
+    }
     map.setPaintProperty("hex", "fill-color", [
       "interpolate",
       ["linear"],
       ["get", attr.col],
-      hexMin,
+      minVal,
       attr.minCol,
-      0.5 * hexMax,
+      maxVal,
       attr.maxCol,
     ]);
   }
