@@ -366,9 +366,14 @@ export default (town, pars) => {
     // Profit
     const profit_per_ton = revenue_per_ton - costs_per_ton; // USD/ton/yr
 
+    // Non-specific costs
+    const grid_cost = pars.grid_cost * town.grid_dist; // USD/year
+    const road_cost = pars.road_cost * town.road_dist; // USD/year
+    const infra_cost = grid_cost + road_cost; // USD/year
+
     // Absolute revenue and profit
-    const revenue = revenue_per_ton * fish_output;
-    const profit = profit_per_ton * fish_output;
+    const revenue = revenue_per_ton * fish_output; // USD/year
+    const profit = profit_per_ton * fish_output - infra_cost; // USD/yr
 
     // Gov costs
     const road_type_needed = get_road_type(town, pars, farm_type, fish_output);

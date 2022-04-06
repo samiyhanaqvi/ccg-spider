@@ -70,6 +70,22 @@ const infra = [
 
 const pars = [
   {
+    col: "grid_cost",
+    label: "Grid cost",
+    min: 5000,
+    max: 100_000,
+    val: 50_000,
+    unit: "USD/km",
+  },
+  {
+    col: "road_cost",
+    label: "Road cost",
+    min: 1_000,
+    max: 10_000,
+    val: 5_000,
+    unit: "USD/km",
+  },
+  {
     col: "duration",
     label: "Duration",
     min: 5,
