@@ -9,6 +9,47 @@ from rasterio.features import rasterize
 from rasterstats import zonal_stats
 
 
+def add_features(geom: gpd.GeoDataFrame, features: list, raster_like: Path):
+    for f in features:
+        col_name = f["name"]
+        if col_name not in geom.columns:
+            print(f"Doing {col_name}")
+            if f["type"] == "raster":
+                geom[col_name] = add_raster_layer(
+                    geom=geom,
+                    raster=Path(f["file"]).expanduser(),
+                    operation=f["operation"],
+                    crs=f["crs"] if "crs" in f.keys() else None,
+                )
+
+            elif f["type"] == "vector":
+                geom[col_name] = add_vector_layer(
+                    geom=geom,
+                    vector=Path(f["file"]).expanduser(),
+                    operation=f["operation"],
+                    raster_like=raster_like,
+                    joined_col=f.get("joined_col", None),
+                )
+
+            else:
+                raise ValueError("Only 'raster' or 'vector' supported for 'type'.")
+
+            if f.get("decimals"):
+                geom[col_name] = geom[col_name].fillna(0).round(f["decimals"])
+
+            if "fix" in f:
+                fix = f["fix"]
+                geom[col_name] = fix_column(
+                    col=geom[col_name],
+                    pop=geom.Pop if "Pop" in geom.columns else None,
+                    factor=fix.get("factor"),
+                    minimum=fix.get("minimum"),
+                    no_value=fix.get("no_value"),
+                    per_capita=fix.get("per_capita"),
+                )
+    return geom
+
+
 def create_hex(aoi: gpd.GeoDataFrame, resolution=5):
     return aoi.h3.polyfill_resample(resolution).get(["geometry"])
 
