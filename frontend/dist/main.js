@@ -46,7 +46,7 @@ const Parameter = {
       <input type="range"
              :min="obj.min"
              :max="obj.max"
-             :step="(obj.max - obj.min)/100"
+             :step="(obj.max - obj.min)/20"
              v-model="obj.val"
       >
     </label>
