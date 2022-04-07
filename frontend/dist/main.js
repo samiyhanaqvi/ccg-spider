@@ -44,6 +44,21 @@ const getColorByMinMax = (attr, scaleColors) => {
   return { min, max };
 };
 
+let mapLoaded = false;
+const updateHex = (parVals) => {
+  hex.features.forEach((ft) => {
+    ft.properties = {
+      ...ft.properties,
+      ...model(ft.properties, parVals),
+    };
+  });
+  if (mapLoaded) {
+    map.getSource("hex").setData(hex);
+  }
+};
+
+updateHex(toObjSingle(pars, "val"));
+
 const Parameter = {
   props: ["obj"],
   template: `
@@ -131,6 +146,9 @@ const app = Vue.createApp({
     this.debouncedUpdate = _.debounce(this.update, 500);
   },
   methods: {
+    zip: function (a, b) {
+      return zip(a, b);
+    },
     draw: function (col) {
       if (this.drawing == col) {
         this.drawing = null;
@@ -313,7 +331,6 @@ const layerPaint = (i) =>
         "circle-color": i.color,
       };
 
-let mapLoaded = false;
 map.on("load", () => {
   mapLoaded = true;
 
@@ -425,18 +442,6 @@ const updatePaint = (attr) => {
       minMax.max,
       attr.maxCol,
     ]);
-  }
-};
-
-const updateHex = (parVals) => {
-  if (mapLoaded) {
-    hex.features.forEach((ft) => {
-      ft.properties = {
-        ...ft.properties,
-        ...model(ft.properties, parVals),
-      };
-    });
-    map.getSource("hex").setData(hex);
   }
 };
 
