@@ -405,7 +405,7 @@ const updatePaint = (attr) => {
     if (app.scaleColors) {
       const hexVals = hex.features.map((f) => f.properties[attr.col]);
       minVal = Math.min(...hexVals);
-      maxVal = 0.7 * Math.max(...hexVals);
+      maxVal = Math.max(...hexVals);
     }
     map.setPaintProperty("hex", "fill-color", [
       "interpolate",
