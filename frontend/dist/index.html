@@ -48,17 +48,28 @@
                 <h1 class="text-4xl block mx-auto text-center font-bold">Spider</h1>
 
                 <!--Colour by dropdown-->
-                <div class="my-4 mx-auto w-max flex flex-row border-2 border-slate-400 rounded-xl">
-                    <!--Label-->
-                    <div class="flex flex-col content-center justify-center align-right py-2 pl-2">
-                        <span>Colour by</span>
+                <div class="my-4 mx-auto w-max flex flex-col border-2 border-slate-400 rounded-xl">
+                    <div class="flex flex-row">
+                        <!--Label-->
+                        <div class="flex flex-col content-center justify-center align-right py-2 pl-2">
+                            <span>Colour by</span>
+                        </div>
+                        <!--Dropdown-->
+                        <select v-model="colorBy" class="pl-1 mr-2 py-2 bg-transparent">
+                            <option v-for="[key, obj] in Object.entries(attrs)" :value="obj.col">
+                            {{ obj.label }}
+                            </option>
+                        </select>
                     </div>
-                    <!--Dropdown-->
-                    <select v-model="colorBy" class="pl-1 mr-2 py-2 bg-transparent">
-                        <option v-for="[key, obj] in Object.entries(attrs)" :value="obj.col">
-                        {{ obj.label }}
-                        </option>
-                    </select>
+
+                    <!--Colour scale-->
+                    <div class="flex flex-row px-2">
+                        <div>{{ colorByObj.min }}</div>
+                        <div class="my-auto mx-2 h-2 w-full"
+                             :style="{ 'background-image': colorBarStyle }">
+                        </div>
+                        <div>{{ colorByObj.max }}</div>
+                    </div>
                 </div>
 
                 <!--ID labels checkbox-->

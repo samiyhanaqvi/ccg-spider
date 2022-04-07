@@ -72,13 +72,13 @@ const app = Vue.createApp({
   },
   data() {
     return {
-      path: path,
-      pars: pars,
+      path,
+      pars,
+      infra,
       idLabels: false,
       scaleColors: true,
       attrs: toObj(attrs),
       colorBy: attrs[0].col,
-      infra: infra,
       drawing: null,
     };
   },
@@ -91,6 +91,11 @@ const app = Vue.createApp({
     },
     colorByObj: function () {
       return this.attrs[this.colorBy];
+    },
+    colorBarStyle: function () {
+      const from = this.colorByObj.minCol;
+      const to = this.colorByObj.maxCol;
+      return `linear-gradient(to right, ${from}, ${to})`;
     },
   },
   watch: {
