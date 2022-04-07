@@ -236,12 +236,14 @@ const updateLine = (e) => {
 const extendProp = (ids, dist, col) => {
   const neis = [];
   ids.forEach((i) => {
-    if (hex.features[i].properties[col] > dist) {
-      hex.features[i].properties[col] = dist;
-      const p = hex.features[i].properties;
-      const nei = [p.n0, p.n1, p.n2, p.n3, p.n4, p.n5];
-      neis.push(nei);
-    }
+    try {
+      if (hex.features[i].properties[col] > dist) {
+        hex.features[i].properties[col] = dist;
+        const p = hex.features[i].properties;
+        const nei = [p.n0, p.n1, p.n2, p.n3, p.n4, p.n5];
+        neis.push(nei);
+      }
+    } catch (e) {} // eslint-disable-line
   });
   if (neis.length > 0) {
     const idsSet = new Set(ids);
