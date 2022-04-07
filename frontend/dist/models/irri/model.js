@@ -1,3 +1,13 @@
+const getProductionMultiplier = (pars) => {
+  if (pars.Tech_type === "pump") {
+    return 2.5;
+  } else if (pars.Tech_type === "bore") {
+    return 1.9;
+  } else {
+    return 0.7;
+  }
+};
+
 export default (town, pars) => {
   const h3size = 0.7373276;
   const km2ha = 100;
@@ -5,8 +15,13 @@ export default (town, pars) => {
   const pump_eff = 0.8;
   const kWh_cost = 0.8;
 
+  const productionMulti = getProductionMultiplier(pars);
   const crop_production =
-    ((town.crop_extentmajority * 0.5) / 100) * h3size * km2ha * town.cropyield;
+    ((town.crop_extentmajority * 0.5) / 100) *
+    h3size *
+    km2ha *
+    town.cropyield *
+    productionMulti;
 
   const transp_cost =
     ((town.MarketDist * 833) / 1000) *

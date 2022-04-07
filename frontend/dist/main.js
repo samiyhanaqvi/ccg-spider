@@ -32,10 +32,10 @@ const zipflat = (a, b) =>
     .reduce((k, i) => k.concat(i))
     .concat(b.slice(-1));
 
-const Slider = {
+const Parameter = {
   props: ["obj"],
   template: `
-  <div>
+  <div v-if="!('cats' in obj)">
     <label>
       <div>
         {{ obj.label }}:
@@ -50,19 +50,31 @@ const Slider = {
       >
     </label>
   </div>
+  <div v-if="'cats' in obj">
+    <label>
+      <div>
+        {{ obj.label }}:
+      </div>
+      <select v-model="obj.val" class="pl-1 mr-2 py-2 bg-transparent">
+          <option v-for="c in obj.cats" :value="c">
+          {{ c }}
+          </option>
+      </select>
+    </label>
+  </div>
   `,
 };
 
 const app = Vue.createApp({
   components: {
-    Slider,
+    Parameter,
   },
   data() {
     return {
       path: path,
       pars: pars,
       idLabels: false,
-      scaleColors: false,
+      scaleColors: true,
       attrs: toObj(attrs),
       colorBy: attrs[0].col,
       infra: infra,

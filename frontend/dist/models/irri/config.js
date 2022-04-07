@@ -92,12 +92,10 @@ const pars = [
     unit: "$/tonne",
   },
   {
-    col: "Tech_cost",
+    col: "Tech_type",
     label: "Irrigation Technology",
-    min: 1,
-    max: 4,
-    val: 2,
-    unit: "tech",
+    cats: ["pump", "rain", "bore"],
+    val: "pump",
   },
   {
     col: "pumpenergyint",
