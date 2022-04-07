@@ -71,7 +71,7 @@ const infra = [
   {
     col: "DP_nowDist",
     label: "Diesel pump",
-    type: "line", //needs to be converted to point
+    type: "point",
     color: "#0000FF",
   },
 ];
@@ -157,6 +157,14 @@ const attrs = [
     max: 5,
     minCol: "hsl(190, 29%, 93%)",
     maxCol: "hsl(190, 100%, 23%)",
+  },
+  {
+    col: "DP_nowDist",
+    label: "Diesel pump dist (km)",
+    min: 0,
+    max: 5,
+    minCol: "hsl(290, 29%, 93%)",
+    maxCol: "hsl(290, 100%, 23%)",
   },
   {
     col: "tech",

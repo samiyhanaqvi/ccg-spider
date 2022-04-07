@@ -91,7 +91,7 @@
                         <button class="hover:bg-blue-400 rounded border-2 border-blue-400 py-1 px-4 mx-4"
                                 :class="{'bg-blue-400': drawing == d.col}"
                                 @click="draw(d.col)"
-                                type="button">{{ drawing == d.col ? 'Stop' : 'Draw' }}</button>
+                                type="button">{{ drawing == d.col ? 'Stop' : 'Draw ' + d.type }}</button>
                         <button class="hover:bg-red-400 rounded border-2 border-red-400 py-1 px-4 mx-4"
                                 @click="deleteDraw(d.col)"
                                 type="button">Del</button>

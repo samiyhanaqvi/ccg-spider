@@ -86,9 +86,6 @@ const app = Vue.createApp({
     idLabelsText: function () {
       return this.idLabels ? "visible" : "none";
     },
-    drawText: function (col) {
-      return this.drawing == col ? "Stop drawing" : "Draw";
-    },
     parVals: function () {
       return toObjSingle(this.pars, "val");
     },
@@ -147,13 +144,22 @@ const map = new mapboxgl.Map({
   zoom: loc.zoom,
 });
 
+const drawModes = {
+  line: "draw_line_string",
+  point: "draw_point",
+};
+
 const setDrawing = (drawing) => {
-  draw.changeMode(drawing ? "draw_line_string" : "static");
+  if (drawing) {
+    draw.changeMode(drawModes[toObj(infra)[drawing].type]);
+  } else {
+    draw.changeMode("static");
+  }
 };
 
 infra.forEach((obj) => {
   hex.features.forEach((ft) => {
-      ft.properties[`${obj.col}_orig`] = ft.properties[obj.col];
+    ft.properties[`${obj.col}_orig`] = ft.properties[obj.col];
   });
 });
 
@@ -164,7 +170,7 @@ const resetProp = (prop) => {
 };
 
 const deleteDrawing = (col) => {
-  map.getSource(`drawn_${col}`).setData(featsToFc([]));
+  map.getSource(`drawn_${col}`).setData(turf.featureCollection([]));
   draw.deleteAll();
   drawnLines[col] = [];
   resetProp(col);
@@ -185,8 +191,9 @@ const draw = new MapboxDraw({
   modes: { ...MapboxDraw.modes, static: StaticMode },
   styles: [
     {
-      id: "gl-draw-grid",
+      id: "gl-draw",
       type: "line",
+      filter: ["==", "$type", "LineString"],
       layout: {
         "line-cap": "round",
         "line-join": "round",
@@ -197,19 +204,34 @@ const draw = new MapboxDraw({
         "line-opacity": 1,
       },
     },
+    {
+      id: "highlight-active-points",
+      type: "circle",
+      filter: ["all", ["==", "$type", "Point"], ["==", "meta", "feature"]],
+      paint: {
+        "circle-radius": 7,
+        "circle-color": "#000000",
+      },
+    },
   ],
 });
 map.addControl(draw);
 
-const joinLineToHex = (line) => {
-  const length = Math.floor(turf.lineDistance(line, "km"));
-  const points = {
-    type: "FeatureCollection",
-    features: [],
-  };
-  for (let step = 0; step < length + 6; step += 5) {
-    points.features.push(turf.along(line, step, "km"));
+const getPointsFromGeom = (newGeom) => {
+  if (newGeom.type === "Point") {
+    return turf.featureCollection([turf.point(newGeom.coordinates)]);
+  } else {
+    const length = Math.floor(turf.lineDistance(newGeom, "km"));
+    const features = [];
+    for (let step = 0; step < length + 6; step += 5) {
+      features.push(turf.along(newGeom, step, "km"));
+    }
+    return turf.featureCollection(features);
   }
+};
+
+const joinLineToHex = (newGeom) => {
+  const points = getPointsFromGeom(newGeom);
   const tagged = turf
     .tag(points, hex, "index", "hexId")
     .features.map((f) => f.properties.hexId);
@@ -217,18 +239,15 @@ const joinLineToHex = (line) => {
   return ids;
 };
 
-const featsToFc = (feats) => ({
-  type: "FeatureCollection",
-  features: feats,
-});
-
 const drawnLines = toObjArr(infra);
 
 const updateLine = (e) => {
   const drawing = app.drawing;
   if (drawing) {
     drawnLines[drawing] = drawnLines[drawing].concat(e.features);
-    map.getSource(`drawn_${drawing}`).setData(featsToFc(drawnLines[drawing]));
+    map
+      .getSource(`drawn_${drawing}`)
+      .setData(turf.featureCollection(drawnLines[drawing]));
     const ids = e.features.map((f) => joinLineToHex(f.geometry)).flat(1);
     extendProp(ids, 0, drawing);
     updateHex(app.parVals, app.colorByObj);
@@ -256,11 +275,23 @@ const extendProp = (ids, dist, col) => {
 
 map.on("draw.create", updateLine);
 map.on("draw.modechange", (e) => {
-  if (e.mode === "simple_select")
+  if (e.mode === "simple_select" && app.drawing)
     setTimeout(() => {
-      draw.changeMode("draw_line_string");
+      draw.changeMode(drawModes[toObj(infra)[app.drawing].type]);
     }, 100);
 });
+
+const layerPaint = (i) =>
+  i.type === "line"
+    ? {
+        "line-color": i.color,
+        "line-width": 3,
+        "line-opacity": 0.9,
+      }
+    : {
+        "circle-radius": 7,
+        "circle-color": i.color,
+      };
 
 let mapLoaded = false;
 map.on("load", () => {
@@ -270,18 +301,15 @@ map.on("load", () => {
     const id = `drawn_${i.col}`;
     map.addSource(id, {
       type: "geojson",
-      data: featsToFc([]),
+      data: turf.featureCollection([]),
     });
 
+    const layerType = i.type === "line" ? "line" : "circle";
     map.addLayer({
       id: id,
-      type: "line",
+      type: layerType,
       source: id,
-      paint: {
-        "line-color": i.color,
-        "line-width": 3,
-        "line-opacity": 0.9,
-      },
+      paint: layerPaint(i),
     });
   });
 
