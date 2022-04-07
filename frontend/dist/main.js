@@ -33,6 +33,17 @@ const zipflat = (a, b) =>
     .reduce((k, i) => k.concat(i))
     .concat(b.slice(-1));
 
+const getColorByMinMax = (attr, scaleColors) => {
+  let min = attr.min;
+  let max = attr.max;
+  if (scaleColors) {
+    const hexVals = hex.features.map((f) => f.properties[attr.col]);
+    min = Math.min(...hexVals);
+    max = Math.max(...hexVals);
+  }
+  return { min, max };
+};
+
 const Parameter = {
   props: ["obj"],
   template: `
@@ -91,6 +102,10 @@ const app = Vue.createApp({
     },
     colorByObj: function () {
       return this.attrs[this.colorBy];
+    },
+    colorByMinMax: function () {
+      const minMax = getColorByMinMax(this.colorByObj, this.scaleColors);
+      return { min: fmt(minMax.min), max: fmt(minMax.max) };
     },
     colorBarStyle: function () {
       const from = this.colorByObj.minCol;
@@ -400,20 +415,14 @@ const updatePaint = (attr) => {
         .concat(zipflat(attr.cats, attr.colors))
     );
   } else {
-    let minVal = attr.min;
-    let maxVal = attr.max;
-    if (app.scaleColors) {
-      const hexVals = hex.features.map((f) => f.properties[attr.col]);
-      minVal = Math.min(...hexVals);
-      maxVal = Math.max(...hexVals);
-    }
+    const minMax = getColorByMinMax(attr, app.scaleColors);
     map.setPaintProperty("hex", "fill-color", [
       "interpolate",
       ["linear"],
       ["get", attr.col],
-      minVal,
+      minMax.min,
       attr.minCol,
-      maxVal,
+      minMax.max,
       attr.maxCol,
     ]);
   }
