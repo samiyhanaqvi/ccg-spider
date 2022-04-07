@@ -132,9 +132,42 @@
 
                     <!--List of parameters-->
                     <div class="divide-y text-sm">
-                        <Parameter v-for="obj in pars" :obj="obj" class="my-2 pt-2">
-                        </Parameter>
+                        <div v-for="obj in pars" class="my-2 pt-2">
+
+                            <!--Slider-->
+                            <div v-if="!('cats' in obj)">
+                                <label>
+                                    <div>
+                                        {{ obj.label }}:
+                                        {{ obj.val.toLocaleString("en") }}
+                                        {{ obj.unit }}
+                                    </div>
+                                    <input type="range"
+                                           :min="obj.min"
+                                           :max="obj.max"
+                                           :step="(obj.max - obj.min)/20"
+                                           v-model="obj.val"
+                                           >
+                                </label>
+                            </div>
+
+                            <!--Categorical dropdown-->
+                            <div v-if="'cats' in obj">
+                                <label>
+                                    <div>
+                                        {{ obj.label }}:
+                                    </div>
+                                    <select v-model="obj.val" class="pl-1 mr-2 py-2 bg-transparent">
+                                        <option v-for="c in obj.cats" :value="c">
+                                        {{ c }}
+                                        </option>
+                                    </select>
+                                </label>
+                            </div>
+
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>

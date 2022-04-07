@@ -1,12 +1,28 @@
 /* global Vue _ mapboxgl MapboxDraw turf */
 
 import * as models from "./models/index.js";
+import {
+  updateHex,
+  reloadHex,
+  resetProp,
+  toObj,
+  toObjSingle,
+  toObjArr,
+  fmt,
+  zip,
+  updatePaint,
+  extendProp,
+  getColorByMinMax,
+  downloadHex,
+  downloadLines,
+  layerPaint,
+} from "./funcs.js";
 
 let path = window.location.pathname.split("/")[1];
 if (!(path in models)) path = "fish";
 
 const modelRoot = models[path];
-const hex = modelRoot.hex;
+let hex = modelRoot.hex;
 const model = modelRoot.model;
 const config = modelRoot.config;
 const loc = config.loc;
@@ -16,88 +32,14 @@ const infra = config.infra;
 const pars = config.pars;
 const attrs = config.attrs;
 
-const toObj = (arr) => arr.reduce((acc, el) => ((acc[el.col] = el), acc), {});
-
-const toObjSingle = (arr, key) =>
-  arr.reduce((acc, el) => ((acc[el.col] = el[key]), acc), {});
-
-const toObjArr = (arr) =>
-  arr.reduce((acc, el) => ((acc[el.col] = []), acc), {});
-
-const fmt = (val) => val && Math.round(val).toLocaleString("en");
-
-const zip = (a, b) => a.map((k, i) => [k, b[i]]);
-
-const zipflat = (a, b) =>
-  zip(a, b)
-    .reduce((k, i) => k.concat(i))
-    .concat(b.slice(-1));
-
-const getColorByMinMax = (attr, scaleColors) => {
-  let min = attr.min;
-  let max = attr.max;
-  if (scaleColors) {
-    const hexVals = hex.features.map((f) => f.properties[attr.col]);
-    min = Math.min(...hexVals);
-    max = Math.max(...hexVals);
-  }
-  return { min, max };
-};
-
 let mapLoaded = false;
-const updateHex = (parVals) => {
-  hex.features.forEach((ft) => {
-    ft.properties = {
-      ...ft.properties,
-      ...model(ft.properties, parVals),
-    };
-  });
-  if (mapLoaded) {
-    map.getSource("hex").setData(hex);
-  }
-};
 
-updateHex(toObjSingle(pars, "val"));
-
-const Parameter = {
-  props: ["obj"],
-  template: `
-  <div v-if="!('cats' in obj)">
-    <label>
-      <div>
-        {{ obj.label }}:
-        {{ obj.val.toLocaleString("en") }}
-        {{ obj.unit }}
-      </div>
-      <input type="range"
-             :min="obj.min"
-             :max="obj.max"
-             :step="(obj.max - obj.min)/20"
-             v-model="obj.val"
-      >
-    </label>
-  </div>
-  <div v-if="'cats' in obj">
-    <label>
-      <div>
-        {{ obj.label }}:
-      </div>
-      <select v-model="obj.val" class="pl-1 mr-2 py-2 bg-transparent">
-          <option v-for="c in obj.cats" :value="c">
-          {{ c }}
-          </option>
-      </select>
-    </label>
-  </div>
-  `,
-};
+hex = updateHex(toObjSingle(pars, "val"), hex, model);
 
 const app = Vue.createApp({
-  components: {
-    Parameter,
-  },
   data() {
     return {
+      hex,
       path,
       pars,
       infra,
@@ -119,7 +61,7 @@ const app = Vue.createApp({
       return this.attrs[this.colorBy];
     },
     colorByMinMax: function () {
-      const minMax = getColorByMinMax(this.colorByObj, this.scaleColors);
+      const minMax = getColorByMinMax(this.colorByObj, this.scaleColors, this.hex);
       return { min: fmt(minMax.min), max: fmt(minMax.max) };
     },
     colorBarStyle: function () {
@@ -133,13 +75,13 @@ const app = Vue.createApp({
       map.setLayoutProperty("hex_label", "visibility", this.idLabelsText);
     },
     scaleColors: function () {
-      updatePaint(this.colorByObj);
+      updatePaint(this.colorByObj, map, this.scaleColors, this.hex);
     },
     parVals: function () {
       this.debouncedUpdate();
     },
     colorBy: function () {
-      updatePaint(this.colorByObj);
+      updatePaint(this.colorByObj, map, this.scaleColors, this.hex);
     },
   },
   created: function () {
@@ -162,13 +104,14 @@ const app = Vue.createApp({
       this.drawing = null;
     },
     update: function () {
-      updateHex(this.parVals);
+      this.hex = updateHex(this.parVals, this.hex, model);
+      reloadHex(map, this.hex, mapLoaded);
     },
     downloadHex: function () {
-      downloadHex();
+      downloadHex(this.hex, path);
     },
     downloadLines: function () {
-      downloadLines();
+      downloadLines(drawnLines, path);
     },
   },
 }).mount("#sidebar");
@@ -201,18 +144,14 @@ infra.forEach((obj) => {
   });
 });
 
-const resetProp = (prop) => {
-  hex.features.forEach((ft) => {
-    ft.properties[prop] = ft.properties[`${prop}_orig`];
-  });
-};
 
 const deleteDrawing = (col) => {
   map.getSource(`drawn_${col}`).setData(turf.featureCollection([]));
   draw.deleteAll();
   drawnLines[col] = [];
-  resetProp(col);
-  updateHex(app.parVals);
+  app.hex = resetProp(col, app.hex);
+  app.hex = updateHex(app.parVals, app.hex, model);
+  reloadHex(map, app.hex, mapLoaded);
 };
 
 const StaticMode = {};
@@ -287,29 +226,12 @@ const updateLine = (e) => {
       .getSource(`drawn_${drawing}`)
       .setData(turf.featureCollection(drawnLines[drawing]));
     const ids = e.features.map((f) => joinLineToHex(f.geometry)).flat(1);
-    extendProp(ids, 0, drawing);
-    updateHex(app.parVals, app.colorByObj);
+    extendProp(ids, 0, drawing, app.hex, hexSize);
+    app.hex = updateHex(app.parVals, app.hex, model);
+    reloadHex(map, app.hex, mapLoaded);
   }
 };
 
-const extendProp = (ids, dist, col) => {
-  const neis = [];
-  ids.forEach((i) => {
-    try {
-      if (hex.features[i].properties[col] > dist) {
-        hex.features[i].properties[col] = dist;
-        const p = hex.features[i].properties;
-        const nei = [p.n0, p.n1, p.n2, p.n3, p.n4, p.n5];
-        neis.push(nei);
-      }
-    } catch (e) {} // eslint-disable-line
-  });
-  if (neis.length > 0) {
-    const idsSet = new Set(ids);
-    const newIds = [...new Set(neis.flat(1))].filter((x) => !idsSet.has(x));
-    extendProp(newIds, dist + hexSize, col);
-  }
-};
 
 map.on("draw.create", updateLine);
 map.on("draw.modechange", (e) => {
@@ -319,17 +241,6 @@ map.on("draw.modechange", (e) => {
     }, 100);
 });
 
-const layerPaint = (i) =>
-  i.type === "line"
-    ? {
-        "line-color": i.color,
-        "line-width": 3,
-        "line-opacity": 0.9,
-      }
-    : {
-        "circle-radius": 7,
-        "circle-color": i.color,
-      };
 
 map.on("load", () => {
   mapLoaded = true;
@@ -393,8 +304,9 @@ map.on("load", () => {
       "text-color": "#000",
     },
   });
-  updateHex(app.parVals);
-  updatePaint(app.colorByObj);
+  app.hex = updateHex(app.parVals, app.hex, model);
+  reloadHex(map, app.hex, mapLoaded);
+  updatePaint(app.colorByObj, map, app.scaleColors, app.hex);
 
   const pointer = () => {
     if (!app.drawing) map.getCanvas().style.cursor = "pointer";
@@ -421,53 +333,3 @@ map.on("load", () => {
   };
   map.on("click", "hex", (e) => addPopup(e));
 });
-
-const updatePaint = (attr) => {
-  if ("cats" in attr) {
-    map.setPaintProperty(
-      "hex",
-      "fill-color",
-      ["match"]
-        .concat([["get", attr.col]])
-        .concat(zipflat(attr.cats, attr.colors))
-    );
-  } else {
-    const minMax = getColorByMinMax(attr, app.scaleColors);
-    map.setPaintProperty("hex", "fill-color", [
-      "interpolate",
-      ["linear"],
-      ["get", attr.col],
-      minMax.min,
-      attr.minCol,
-      minMax.max,
-      attr.maxCol,
-    ]);
-  }
-};
-
-const downloadHex = () => {
-  downloadFc(hex, "spider_hex");
-};
-
-const downloadLines = () => {
-  const lines = Object.entries(drawnLines).map(([type, arr]) => {
-    const feats = arr.map((ft) => {
-      ft.properties.type = type;
-      return ft;
-    });
-    return feats;
-  });
-  const fc = turf.featureCollection(lines.flat());
-  downloadFc(fc, "spider_lines");
-};
-
-const downloadFc = (fc, name) => {
-  const str = JSON.stringify(fc);
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(str);
-  const downloadAnchorNode = document.createElement("a");
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", name + "_" + path + ".geojson");
-  document.body.appendChild(downloadAnchorNode);
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
-};
