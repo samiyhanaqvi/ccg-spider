@@ -16,14 +16,27 @@ export const updateHex = (parVals, hex, model) => {
   };
 };
 
-export const resetProp = (prop, hex) => {
+const resetProp = (hex, col) => {
   return {
     ...hex,
     features: hex.features.map((f) => ({
       ...f,
       properties: {
         ...f.properties,
-        [prop]: f.properties[`${prop}_orig`],
+        [col]: f.properties[`${col}_orig`],
+      },
+    })),
+  };
+};
+
+export const makeOrigProps = (hex, col) => {
+  return {
+    ...hex,
+    features: hex.features.map((f) => ({
+      ...f,
+      properties: {
+        ...f.properties,
+        [`${col}_orig`]: f.properties[col],
       },
     })),
   };
@@ -81,7 +94,7 @@ export const updatePaint = (attr, map, scaleColors, hex) => {
   }
 };
 
-export const extendProp = (ids, dist, col, hexOrig, hexSize) => {
+const extendProp = (ids, dist, col, hexOrig, hexSize) => {
   let hex = hexOrig;
   const neis = [];
   ids.forEach((i) => {
@@ -139,4 +152,77 @@ const downloadFc = (fc, path, name) => {
   document.body.appendChild(downloadAnchorNode);
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
+};
+
+const getPointsFromGeom = (newGeom) => {
+  if (newGeom.type === "Point") {
+    return turf.featureCollection([turf.point(newGeom.coordinates)]);
+  } else {
+    const length = Math.floor(turf.lineDistance(newGeom, "km"));
+    const features = [];
+    for (let step = 0; step < length + 6; step += 5) {
+      features.push(turf.along(newGeom, step, "km"));
+    }
+    return turf.featureCollection(features);
+  }
+};
+
+const joinLineToHex = (newGeom, hex) => {
+  const points = getPointsFromGeom(newGeom);
+  const tagged = turf
+    .tag(points, hex, "index", "hexId")
+    .features.map((f) => f.properties.hexId);
+  const ids = [...new Set(tagged)].filter(Number);
+  return ids;
+};
+
+export const updateLine = (
+  feats,
+  app,
+  map,
+  model,
+  mapLoaded,
+  hexSize,
+  drawnLines
+) => {
+  const drawing = app.drawing;
+  if (drawing) {
+    drawnLines[drawing] = drawnLines[drawing].concat(feats);
+    map
+      .getSource(`drawn_${drawing}`)
+      .setData(turf.featureCollection(drawnLines[drawing]));
+    const ids = feats.map((f) => joinLineToHex(f.geometry, app.hex)).flat(1);
+    extendProp(ids, 0, drawing, app.hex, hexSize);
+    app.hex = updateHex(app.parVals, app.hex, model);
+    reloadHex(map, app.hex, mapLoaded);
+  }
+};
+
+const drawModes = {
+  line: "draw_line_string",
+  point: "draw_point",
+};
+
+export const keepDrawing = (mode, app, draw, infra) => {
+  if (mode === "simple_select" && app.drawing)
+    setTimeout(() => {
+      draw.changeMode(drawModes[toObj(infra)[app.drawing].type]);
+    }, 100);
+};
+
+export const setDrawing = (drawing, draw, infra) => {
+  if (drawing) {
+    draw.changeMode(drawModes[toObj(infra)[drawing].type]);
+  } else {
+    draw.changeMode("static");
+  }
+};
+
+export const deleteDrawing = (col, map, app, draw, drawnLines, mapLoaded, model) => {
+  map.getSource(`drawn_${col}`).setData(turf.featureCollection([]));
+  draw.deleteAll();
+  drawnLines[col] = [];
+  app.hex = resetProp(app.hex, col);
+  app.hex = updateHex(app.parVals, app.hex, model);
+  reloadHex(map, app.hex, mapLoaded);
 };
