@@ -151,9 +151,10 @@ const setDrawing = (drawing) => {
   draw.changeMode(drawing ? "draw_line_string" : "static");
 };
 
-hex.features.forEach((ft) => {
-  ft.properties.grid_dist_orig = ft.properties.grid_dist;
-  ft.properties.road_dist_orig = ft.properties.road_dist;
+infra.forEach((obj) => {
+  hex.features.forEach((ft) => {
+      ft.properties[`${obj.col}_orig`] = ft.properties[obj.col];
+  });
 });
 
 const resetProp = (prop) => {
