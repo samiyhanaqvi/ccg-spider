@@ -31,7 +31,7 @@ export default (town, pars) => {
   const irrig_cost =
     ((crop_production * CropWaterNeeds * town.WTDmean * pars.pumpenergyint) /
       pump_eff) *
-    kWh_cost;
+    kWh_cost * town.GridDist;
 
   const revenue = crop_production * pars.crop_price;
   const profit = revenue - transp_cost - irrig_cost;

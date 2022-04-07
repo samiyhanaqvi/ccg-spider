@@ -151,6 +151,14 @@ const attrs = [
     maxCol: "hsl(300, 100%, 23%)",
   },
   {
+    col: "GridDist",
+    label: "Grid dist (km)",
+    min: 0,
+    max: 5,
+    minCol: "hsl(190, 29%, 93%)",
+    maxCol: "hsl(190, 100%, 23%)",
+  },
+  {
     col: "tech",
     label: "Irrigation Technology",
     cats: [
