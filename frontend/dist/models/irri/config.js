@@ -2,6 +2,8 @@ const center = [35.5, -13.2];
 const zoom = 9;
 const loc = { center, zoom };
 
+const hexSize = 0.5; // km
+
 const popup = [
   {
     col: "WTDmean",
@@ -174,4 +176,4 @@ const attrs = [
   },
 ];
 
-export default { loc, popup, infra, pars, attrs };
+export default { loc, hexSize, popup, infra, pars, attrs };

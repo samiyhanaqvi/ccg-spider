@@ -10,6 +10,7 @@ const hex = modelRoot.hex;
 const model = modelRoot.model;
 const config = modelRoot.config;
 const loc = config.loc;
+const hexSize = config.hexSize;
 const popup = config.popup;
 const infra = config.infra;
 const pars = config.pars;
@@ -248,7 +249,7 @@ const extendProp = (ids, dist, col) => {
   if (neis.length > 0) {
     const idsSet = new Set(ids);
     const newIds = [...new Set(neis.flat(1))].filter((x) => !idsSet.has(x));
-    extendProp(newIds, dist + 10, col);
+    extendProp(newIds, dist + hexSize, col);
   }
 };
 

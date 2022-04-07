@@ -2,6 +2,8 @@ const center = [37.7, 0.31];
 const zoom = 6;
 const loc = {center, zoom};
 
+const hexSize = 9; // km
+
 const popup = [
   {
     col: "adm1",
@@ -292,4 +294,4 @@ const attrs = [
   },
 ];
 
-export default {loc, popup, infra, pars, attrs};
+export default { loc, hexSize, popup, infra, pars, attrs };
