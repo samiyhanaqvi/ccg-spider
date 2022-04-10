@@ -1,5 +1,11 @@
 /* global turf */
 
+export const getPath = (models) => {
+  let path = window.location.pathname.split("/")[1];
+  if (!(path in models)) path = "fish";
+  return path;
+};
+
 export const getHex = async (path, infra, parVals, model) => {
   let hex = await fetch(`models/${path}/hex.geojson`).then((res) => res.json());
   infra.forEach((obj) => {
@@ -227,7 +233,15 @@ export const setDrawing = (drawing, draw, infra) => {
   }
 };
 
-export const deleteDrawing = (col, map, app, draw, drawnLines, mapLoaded, model) => {
+export const deleteDrawing = (
+  col,
+  map,
+  app,
+  draw,
+  drawnLines,
+  mapLoaded,
+  model
+) => {
   map.getSource(`drawn_${col}`).setData(turf.featureCollection([]));
   draw.deleteAll();
   drawnLines[col] = [];

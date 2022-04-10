@@ -2,6 +2,7 @@
 
 import * as models from "./models/index.js";
 import {
+  getPath,
   getHex,
   updateHex,
   reloadHex,
@@ -22,35 +23,24 @@ import {
 
 import { onMapLoaded, setupDrawing } from "./map.js";
 
-let path = window.location.pathname.split("/")[1];
-if (!(path in models)) path = "fish";
-
-const modelRoot = models[path];
-const model = modelRoot.model;
-const config = modelRoot.config;
-const loc = config.loc;
-const hexSize = config.hexSize;
-const popup = config.popup;
-const infra = config.infra;
-const pars = config.pars;
-const attrs = config.attrs;
-
-const drawnLines = toObjArr(infra);
-
+const path = getPath(models);
+const model = models[path].model;
+const config = models[path].config;
 
 const app = Vue.createApp({
   data() {
     return {
       hex: {},
       path,
-      pars,
-      infra,
+      pars: config.pars,
+      infra: config.infra,
       mapLoaded: false,
       idLabels: false,
       scaleColors: true,
-      attrs: toObj(attrs),
-      colorBy: attrs[0].col,
+      attrs: toObj(config.attrs),
+      colorBy: config.attrs[0].col,
       drawing: null,
+      drawnLines: toObjArr(config.infra),
     };
   },
   computed: {
@@ -105,10 +95,18 @@ const app = Vue.createApp({
       } else {
         this.drawing = col;
       }
-      setDrawing(this.drawing, draw, infra);
+      setDrawing(this.drawing, draw, this.infra);
     },
     deleteDraw: function (col) {
-      deleteDrawing(col, map, this, draw, drawnLines, this.mapLoaded, model);
+      deleteDrawing(
+        col,
+        map,
+        this,
+        draw,
+        this.drawnLines,
+        this.mapLoaded,
+        model
+      );
       this.drawing = null;
     },
     update: function () {
@@ -119,7 +117,7 @@ const app = Vue.createApp({
       downloadHex(this.hex, path);
     },
     downloadLines: function () {
-      downloadLines(drawnLines, path);
+      downloadLines(this.drawnLines, path);
     },
   },
 }).mount("#sidebar");
@@ -129,20 +127,28 @@ mapboxgl.accessToken =
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/carderne/cl0rvsxn200ce14jz3q5j5hco?fresh=true",
-  center: loc.center,
-  zoom: loc.zoom,
+  center: config.loc.center,
+  zoom: config.loc.zoom,
 });
 
 map.on("load", () => {
   app.mapLoaded = true;
-  onMapLoaded(map, infra, popup, app, model);
+  onMapLoaded(map, app.infra, config.popup, app, model);
 });
 
 const draw = setupDrawing();
 map.addControl(draw);
 
 map.on("draw.create", (e) =>
-  updateLine(e.features, app, map, model, app.mapLoaded, hexSize, drawnLines)
+  updateLine(
+    e.features,
+    app,
+    map,
+    model,
+    app.mapLoaded,
+    config.hexSize,
+    app.drawnLines
+  )
 );
 
-map.on("draw.modechange", (e) => keepDrawing(e.mode, app, draw, infra));
+map.on("draw.modechange", (e) => keepDrawing(e.mode, app, draw, app.infra));
