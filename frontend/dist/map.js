@@ -1,13 +1,59 @@
-/* global mapboxgl MapboxDraw turf */
+/* global mapboxgl MapboxDraw */
 
-import { updateHex, reloadHex, fmt, updatePaint, layerPaint } from "./funcs.js";
+import {
+  updateHex,
+  reloadHex,
+  fmt,
+  updatePaint,
+  layerPaint,
+  updateLine,
+  keepDrawing,
+  emptyFc,
+} from "./funcs.js";
+
+export const makeMap = (config, app, model) => {
+  mapboxgl.accessToken =
+    "pk.eyJ1IjoiY2FyZGVybmUiLCJhIjoiY2puMXN5cnBtNG53NDN2bnhlZ3h4b3RqcCJ9.eNjrtezXwvM7Ho1VSxo06w";
+  const map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/carderne/cl0rvsxn200ce14jz3q5j5hco?fresh=true",
+    center: config.loc.center,
+    zoom: config.loc.zoom,
+  });
+
+  map.on("load", () => {
+    app.mapLoaded = true;
+    onMapLoaded(map, app.infra, config.popup, app, model);
+  });
+  return map;
+};
+
+export const makeDraw = (map, app, config, model) => {
+  const draw = setupDrawing();
+  map.addControl(draw);
+
+  map.on("draw.create", (e) =>
+    updateLine(
+      e.features,
+      app,
+      map,
+      model,
+      app.mapLoaded,
+      config.hexSize,
+      app.drawnLines
+    )
+  );
+
+  map.on("draw.modechange", (e) => keepDrawing(e.mode, app, draw, app.infra));
+  return draw;
+};
 
 export const onMapLoaded = (map, infra, popup, app, model) => {
   infra.forEach((i) => {
     const id = `drawn_${i.col}`;
     map.addSource(id, {
       type: "geojson",
-      data: turf.featureCollection([]),
+      data: emptyFc(),
     });
 
     const layerType = i.type === "line" ? "line" : "circle";

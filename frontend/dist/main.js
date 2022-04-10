@@ -1,4 +1,4 @@
-/* global Vue _ mapboxgl */
+/* global Vue _ */
 
 import * as models from "./models/index.js";
 import {
@@ -16,18 +16,16 @@ import {
   getColorByMinMax,
   downloadHex,
   downloadLines,
-  updateLine,
-  keepDrawing,
   setDrawing,
 } from "./funcs.js";
 
-import { onMapLoaded, setupDrawing } from "./map.js";
+import { makeMap, makeDraw } from "./map.js";
 
 const path = getPath(models);
 const model = models[path].model;
 const config = models[path].config;
 
-const app = Vue.createApp({
+Vue.createApp({
   data() {
     return {
       hex: {},
@@ -69,40 +67,42 @@ const app = Vue.createApp({
   },
   watch: {
     idLabels: function () {
-      map.setLayoutProperty("hex_label", "visibility", this.idLabelsText);
+      this.map.setLayoutProperty("hex_label", "visibility", this.idLabelsText);
     },
     scaleColors: function () {
-      updatePaint(this.colorByObj, map, this.scaleColors, this.hex);
+      updatePaint(this.colorByObj, this.map, this.scaleColors, this.hex);
     },
     parVals: function () {
       this.debouncedUpdate();
     },
     colorBy: function () {
-      updatePaint(this.colorByObj, map, this.scaleColors, this.hex);
+      updatePaint(this.colorByObj, this.map, this.scaleColors, this.hex);
     },
   },
   created: async function () {
     this.debouncedUpdate = _.debounce(this.update, 500);
     this.hex = await getHex(path, this.infra, this.parVals, model);
+    this.map = makeMap(config, this, model);
+    this.draw = makeDraw(this.map, this, config, model);
   },
   methods: {
     zip: function (a, b) {
       return zip(a, b);
     },
-    draw: function (col) {
+    doDraw: function (col) {
       if (this.drawing == col) {
         this.drawing = null;
       } else {
         this.drawing = col;
       }
-      setDrawing(this.drawing, draw, this.infra);
+      setDrawing(this.drawing, this.draw, this.infra);
     },
     deleteDraw: function (col) {
       deleteDrawing(
         col,
-        map,
+        this.map,
         this,
-        draw,
+        this.draw,
         this.drawnLines,
         this.mapLoaded,
         model
@@ -111,7 +111,7 @@ const app = Vue.createApp({
     },
     update: function () {
       this.hex = updateHex(this.parVals, this.hex, model);
-      reloadHex(map, this.hex, this.mapLoaded);
+      reloadHex(this.map, this.hex, this.mapLoaded);
     },
     downloadHex: function () {
       downloadHex(this.hex, path);
@@ -121,34 +121,3 @@ const app = Vue.createApp({
     },
   },
 }).mount("#sidebar");
-
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiY2FyZGVybmUiLCJhIjoiY2puMXN5cnBtNG53NDN2bnhlZ3h4b3RqcCJ9.eNjrtezXwvM7Ho1VSxo06w";
-const map = new mapboxgl.Map({
-  container: "map",
-  style: "mapbox://styles/carderne/cl0rvsxn200ce14jz3q5j5hco?fresh=true",
-  center: config.loc.center,
-  zoom: config.loc.zoom,
-});
-
-map.on("load", () => {
-  app.mapLoaded = true;
-  onMapLoaded(map, app.infra, config.popup, app, model);
-});
-
-const draw = setupDrawing();
-map.addControl(draw);
-
-map.on("draw.create", (e) =>
-  updateLine(
-    e.features,
-    app,
-    map,
-    model,
-    app.mapLoaded,
-    config.hexSize,
-    app.drawnLines
-  )
-);
-
-map.on("draw.modechange", (e) => keepDrawing(e.mode, app, draw, app.infra));

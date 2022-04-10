@@ -130,6 +130,8 @@ const extendProp = (ids, dist, col, hexOrig, hexSize) => {
   return hex;
 };
 
+export const emptyFc = () => turf.featureCollection([]);
+
 export const layerPaint = (i) =>
   i.type === "line"
     ? {
