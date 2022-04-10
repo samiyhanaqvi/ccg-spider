@@ -2,10 +2,10 @@
 
 import * as models from "./models/index.js";
 import {
+  getHex,
   updateHex,
   reloadHex,
   deleteDrawing,
-  makeOrigProps,
   toObj,
   toObjSingle,
   toObjArr,
@@ -26,7 +26,6 @@ let path = window.location.pathname.split("/")[1];
 if (!(path in models)) path = "fish";
 
 const modelRoot = models[path];
-let hex = modelRoot.hex;
 const model = modelRoot.model;
 const config = modelRoot.config;
 const loc = config.loc;
@@ -36,21 +35,17 @@ const infra = config.infra;
 const pars = config.pars;
 const attrs = config.attrs;
 
-let mapLoaded = false;
 const drawnLines = toObjArr(infra);
-infra.forEach((obj) => {
-  hex = makeOrigProps(hex, obj.col);
-});
 
-hex = updateHex(toObjSingle(pars, "val"), hex, model);
 
 const app = Vue.createApp({
   data() {
     return {
-      hex,
+      hex: {},
       path,
       pars,
       infra,
+      mapLoaded: false,
       idLabels: false,
       scaleColors: true,
       attrs: toObj(attrs),
@@ -96,8 +91,9 @@ const app = Vue.createApp({
       updatePaint(this.colorByObj, map, this.scaleColors, this.hex);
     },
   },
-  created: function () {
+  created: async function () {
     this.debouncedUpdate = _.debounce(this.update, 500);
+    this.hex = await getHex(path, this.infra, this.parVals, model);
   },
   methods: {
     zip: function (a, b) {
@@ -112,12 +108,12 @@ const app = Vue.createApp({
       setDrawing(this.drawing, draw, infra);
     },
     deleteDraw: function (col) {
-      deleteDrawing(col, map, this, draw, drawnLines, mapLoaded, model);
+      deleteDrawing(col, map, this, draw, drawnLines, this.mapLoaded, model);
       this.drawing = null;
     },
     update: function () {
       this.hex = updateHex(this.parVals, this.hex, model);
-      reloadHex(map, this.hex, mapLoaded);
+      reloadHex(map, this.hex, this.mapLoaded);
     },
     downloadHex: function () {
       downloadHex(this.hex, path);
@@ -138,7 +134,7 @@ const map = new mapboxgl.Map({
 });
 
 map.on("load", () => {
-  mapLoaded = true;
+  app.mapLoaded = true;
   onMapLoaded(map, infra, popup, app, model);
 });
 
@@ -146,7 +142,7 @@ const draw = setupDrawing();
 map.addControl(draw);
 
 map.on("draw.create", (e) =>
-  updateLine(e.features, app, map, model, mapLoaded, hexSize, drawnLines)
+  updateLine(e.features, app, map, model, app.mapLoaded, hexSize, drawnLines)
 );
 
 map.on("draw.modechange", (e) => keepDrawing(e.mode, app, draw, infra));

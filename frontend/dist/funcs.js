@@ -1,5 +1,14 @@
 /* global turf */
 
+export const getHex = async (path, infra, parVals, model) => {
+  let hex = await fetch(`models/${path}/hex.geojson`).then((res) => res.json());
+  infra.forEach((obj) => {
+    hex = makeOrigProps(hex, obj.col);
+  });
+  hex = updateHex(parVals, hex, model);
+  return hex;
+};
+
 export const reloadHex = (map, hex, mapLoaded) => {
   if (mapLoaded) {
     map.getSource("hex").setData(hex);
@@ -45,7 +54,7 @@ export const makeOrigProps = (hex, col) => {
 export const getColorByMinMax = (attr, scaleColors, hex) => {
   let min = attr.min;
   let max = attr.max;
-  if (scaleColors) {
+  if (scaleColors && "features" in hex) {
     const hexVals = hex.features.map((f) => f.properties[attr.col]);
     min = Math.min(...hexVals);
     max = Math.max(...hexVals);
