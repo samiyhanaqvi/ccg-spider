@@ -1,10 +1,9 @@
-import re
 from pathlib import Path
 import warnings
 
 warnings.simplefilter("ignore")  # noqa
 
-from typer import Typer, echo, Option  # noqa
+from typer import run, echo, Option  # noqa
 import yaml  # noqa
 import geopandas as gpd  # noqa
 
@@ -17,12 +16,9 @@ from spider.features import (  # noqa
 )
 from spider.neighbors import add_neighbors  # noqa
 
-app = Typer()
-
 cfg_default = Path(__file__).parents[1] / "config.yml"
 
 
-@app.command()
 def feat(
     file: Path,
     config: Path = Option(cfg_default, help="Path to config file"),
@@ -31,6 +27,9 @@ def feat(
     """Add features."""
 
     file = Path(file)
+    if file.suffix != ".geojson":
+        echo("File must be a GeoJSON! eg 'processed/hex.geojson'")
+        return
 
     with config.open() as f:
         cfg = yaml.safe_load(f)
@@ -51,30 +50,13 @@ def feat(
     else:
         echo("No features to add")
 
-    geom["fid"] = geom.index
     geom["index"] = geom.index
     geom = geom.dropna(axis=0, subset=["geometry"])
 
-    geom.geometry = geom.simplify(
-        tolerance=0.001,
-        preserve_topology=False,
-    )
+    geom.geometry = geom.simplify(tolerance=0.001, preserve_topology=False,)
     echo(f"Saving to {file}")
-    geom.to_file(file)
+    geom.to_file(file, driver="GeoJSON")
 
 
-@app.command()
-def js(
-    in_file: Path,
-    out_file: Path,
-):
-    """Convert 'in_file' to JS at 'out_file'."""
-    gdf = gpd.read_file(in_file)
-    with open(out_file, "w") as f:
-        gdf_json = gdf.to_json()
-        gdf_json = re.sub(
-            r'"id": "(\d*)"',
-            lambda m: f'"id": {m.group(1)}',
-            gdf_json,
-        )
-        print("export default", gdf_json, file=f)
+def cli():
+    run(feat)

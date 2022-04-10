@@ -62,22 +62,27 @@ I recommend to start with `3`, check that everything works, and then go to highe
 (It will be much faster this way!)
 
 ## Hexagon time
-👉 Once that is all done, you can run the scripts:
+👉 Once that is all done, you can run the script. Note that the output _must_ be a GeoJSON or it will complain.
 ```bash
-spi feat processed/hex.gpkg
-spi js processed/hex.gpkg hex.js
+spi processed/hex.geojson
 ```
-You'll need to move the `hex.js` to the appropriate place inside `frontend/`.
 
-If you run `spi feat` and provide a path to a file that _already exists_, it will overwrite that file. If you want, you can run the script as below, and then only new columns from `config.yml` will be added (this might be risky).
+And then you can move this GeoJSON to the appropriate location at `frontend/dist/models/model-name/hex.geojson`.
+
+You can also point the script to a different config file:
 ```bash
-spi feat processed/hex.gpkg --append
+spi --config=other_config.yml processed/other_hex.geojson
+```
+
+If you run `spi` and provide a path to a file that _already exists_, it will overwrite that file. If you want, you can run the script as below, and then only new columns from `config.yml` will be added (this might be risky).
+```bash
+spi processed/hex.geojson --append
 ```
 
 ## Additional layers
 I'd recommend to try it just like that to make sure everything works.
 But once you've successfully run the scripts (see above), you need to add some more layers.
-So follow these instructions, and then run the `spi feat` script again.
+So follow these instructions, and then run the `spi` script again.
 
 Have a look at [config_example.yml](config_example.yml) to see a full example of how you can add layers. Basically, it looks like this:
 ```yaml
