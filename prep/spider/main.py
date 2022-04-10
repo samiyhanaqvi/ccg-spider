@@ -3,9 +3,9 @@ import warnings
 
 warnings.simplefilter("ignore")  # noqa
 
-from typer import run, echo, Option  # noqa
-import yaml  # noqa
 import geopandas as gpd  # noqa
+import yaml  # noqa
+from typer import run, echo, Option  # noqa
 
 from spider.features import (  # noqa
     add_features,
