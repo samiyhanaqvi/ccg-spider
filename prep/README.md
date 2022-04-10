@@ -48,6 +48,7 @@ pip install -e .
 ## Configuration
 👉 You must make a file called `config.yml` (inside the `prep` folder)
 with at least the following contents:
+(You can look at the complete example at [config_example.yml](config_example.yml) to get some ideas.)
 ```yaml
 aoi: data/aoi.gpkg                  # path to the AOI you downloaded
 hex_res: 3                          # see note below!
