@@ -6,11 +6,9 @@ npm install
 ```
 
 ## Local development
+This will automatically run the development server and the Tailwind CSS watching:
 ```bash
-npm run tw
-
-# in a separate terminal
-npx lite-server --baseDir=dist --host=0.0.0.0
+npm run dev
 ```
 
 Then navigate to http://localhost:3002/.

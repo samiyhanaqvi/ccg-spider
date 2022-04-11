@@ -4,7 +4,9 @@
   "description": "",
   "main": "",
   "scripts": {
-    "tw": "npx tailwindcss -i ./tailwind.config.css -o ./dist/tw.css --watch"
+    "dev": "run-p dev:*",
+    "dev:tw": "npx tailwindcss -i ./tailwind.config.css -o ./dist/tw.css --watch",
+    "dev:serve": "npx lite-server --baseDir=dist --host=0.0.0.0"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,7 @@
   "homepage": "",
   "devDependencies": {
     "autoprefixer": "^10.4.0",
+    "npm-run-all": "^4.1.5",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
