@@ -39,6 +39,12 @@ const infra = [
     type: "line",
     color: "#0000FF",
   },
+  {
+    col: "DP_nowDist",
+    label: "Diesel pump",
+    type: "point",
+    color: "#0000FF",
+  },
 ];
 
 const pars = [
@@ -65,6 +71,12 @@ const pars = [
     max: 100,
     val: 4,
     unit: "%",
+  },
+  {
+    col: "h2_state",
+    label: "Hydrogen state",
+    cats: ["500 bar", "Liquid"],
+    val: "500 bar",
   },
 ];
 
@@ -122,6 +134,14 @@ const attrs = [
     label: "Turbine output",
     min: 1,
     max: 20,
+    minCol: "hsl(255, 29%, 93%)",
+    maxCol: "hsl(255, 100%, 23%)",
+  },
+  {
+    col: "port_dist",
+    label: "Distance to port in Mombasa",
+    min: 1,
+    max: 100000,
     minCol: "hsl(255, 29%, 93%)",
     maxCol: "hsl(255, 100%, 23%)",
   },
