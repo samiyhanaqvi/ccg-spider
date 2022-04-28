@@ -13,6 +13,13 @@ const popup = [
             // or false for categorical labels
   },
   {
+    col: "price_h2_ocean",
+    label: "Hydrogen costs ocean",
+    unit: "€/kg",
+    fmt: 2, // this should be the number of decimal places
+            // or false for categorical labels
+  },
+  {
     col: "pv",
     label: "PV",
     unit: "kWh/kWp per day",
@@ -34,19 +41,24 @@ const popup = [
 ];
 
 const infra = [
+  //{
+  //  col: "grid_dist",
+  //  label: "Grid",
+  //  type: "line",
+  //  color: "#FF0000",
+  //},
+  //{
+  //  col: "road_dist",
+  //  label: "Road",
+  //  type: "line",
+  //  color: "#0000FF",
+  //},
   {
-    col: "grid_dist",
-    label: "Grid",
-    type: "line",
-    color: "#FF0000",
-  },
-  {
-    col: "road_dist",
-    label: "Road",
-    type: "line",
+    col: "mombasa_dist",
+    label: "Demand",
+    type: "point",
     color: "#0000FF",
   },
-
 ];
 
 const pars = [
@@ -81,20 +93,42 @@ const pars = [
     val: "500 bar",
   },
   {
+    col: "water_resource",
+    label: "Water resource considered for H2 production",
+    cats: ["Domestic water bodies", "Ocean", "Cheapest option"],
+    val: "Domestic water bodies",
+  },
+  {
     col: "water_tran_cost",
-    label: "Water Transportation Costs",
+    label: "Water Transpot costs",
     min: 0,
     max: 1,
     val: 0.1,
     unit: "€/100km/m3",
   },
   {
+    col: "h2_trans_cost",
+    label: "H2 Transport costs",
+    min: 0,
+    max: 2,
+    val: 0.9,
+    unit: "€/100km/kg",
+  }, 
+  {
     col: "elec_water_treatment",
     label: "Energy demand water treatment",
     min: 0,
     max: 1,
     val: 0.2,                 //random assumption so far [kWh/m3] see: https://www.researchgate.net/publication/289707090_Energy_consumption_and_economic_cost_of_typical_wastewater_treatment_systems_in_Shenzhen_China
-    unit: "€/100km/m3",
+    unit: "kWh/m3",
+  },
+  {
+    col: "elec_ocean_water_treatment",
+    label: "Energy demand ocean water treatment",
+    min: 1,
+    max: 6,
+    val: 3.7,                 //https://www.pnas.org/doi/epdf/10.1073/pnas.1902335116
+    unit: "kWh/m3",
   },
 ];
 
@@ -102,8 +136,16 @@ const attrs = [
   {
     col: "price_h2",
     label: "H2 production price [€/kg]",
-    min: 1,
-    max: 6,
+    min: 1.0,
+    max: 6.0,
+    minCol: "hsl(90, 100%, 23%)",
+    maxCol: "hsl(90, 29%, 93%)",
+  },
+  {
+    col: "h2_cost_to_demand",
+    label: "LCOH to closest demand",
+    min: 1.0,
+    max: 6.0,
     minCol: "hsl(90, 100%, 23%)",
     maxCol: "hsl(90, 29%, 93%)",
   },
@@ -156,10 +198,34 @@ const attrs = [
     maxCol: "hsl(255, 100%, 23%)",
   },
   {
-    col: "port_dist",
-    label: "Distance to port in Mombasa",
+    col: "water_dist",
+    label: "Distance to water",
     min: 1,
-    max: 100000,
+    max: 10000,
+    minCol: "hsl(255, 29%, 93%)",
+    maxCol: "hsl(255, 100%, 23%)",
+  },
+  {
+    col: "mombasa_dist",
+    label: "Distance to mombasa",
+    min: 1,
+    max: 10000,
+    minCol: "hsl(255, 29%, 93%)",
+    maxCol: "hsl(255, 100%, 23%)",
+  },
+  {
+    col: "ocean_dist",
+    label: "Distance to ocean",
+    min: 1,
+    max: 10000,
+    minCol: "hsl(255, 29%, 93%)",
+    maxCol: "hsl(255, 100%, 23%)",
+  },
+  {
+    col: "grid_dist",
+    label: "Distance to grid",
+    min: 1,
+    max: 10000,
     minCol: "hsl(255, 29%, 93%)",
     maxCol: "hsl(255, 100%, 23%)",
   },
