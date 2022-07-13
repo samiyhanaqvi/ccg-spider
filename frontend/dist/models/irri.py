@@ -1,44 +1,77 @@
-def getProductionMultiplier(pars):
-    if pars["Tech_type"] == "pump":
+from typing import TypedDict, NamedTuple
+
+
+class Town(NamedTuple):
+    crop_extentmajority: float
+    cropyield: float
+    MarketDist: float
+    WTDmean: float
+    GridDist: float
+
+
+class Pars(NamedTuple):
+    Tech_type: float
+    tcostperton_km: float
+    pumpenergyint: float
+    crop_price: float
+
+
+class Const(NamedTuple):
+    h3size: float = 0.7373276
+    km2ha: float = 100
+    CropWaterNeeds: float = 50  # m3 per t per year
+    pump_eff: float = 0.8
+    kWh_cost: float = 0.8
+
+
+C = Const()
+
+
+class Result(TypedDict):
+    tech: str
+    crop_production: float
+    transp_cost: float
+    irrig_cost: float
+    revenue: float
+    profit: float
+
+
+def getProductionMultiplier(pars: Pars) -> float:
+    if pars.Tech_type == "pump":
         return 2.5
-    elif pars["Tech_type"] == "bore":
+    elif pars.Tech_type == "bore":
         return 1.9
     else:
         return 0.7
 
 
-def model(town, pars):
-    h3size = 0.7373276
-    km2ha = 100
-    CropWaterNeeds = 50  # m3 per t per year
-    pump_eff = 0.8
-    kWh_cost = 0.8
+def model(town: Town, pars: Pars) -> Result:
 
     productionMulti = getProductionMultiplier(pars)
     crop_production = (
-        ((town["crop_extentmajority"] * 0.5) / 100)
-        * h3size
-        * km2ha
-        * town["cropyield"]
+        ((town.crop_extentmajority * 0.5) / 100)
+        * C.h3size
+        * C.km2ha
+        * town.cropyield
         * productionMulti
     )
 
     transp_cost = (
-        ((town["MarketDist"] * 833) / 1000)
-        * town["crop_extentmajority"]
-        * pars["tcostperton_km"]
+        ((town.MarketDist * 833) / 1000)
+        * town.crop_extentmajority
+        * pars.tcostperton_km
     )
 
     irrig_cost = (
         (
-            (crop_production * CropWaterNeeds * town["WTDmean"] * pars["pumpenergyint"])
-            / pump_eff
+            (crop_production * C.CropWaterNeeds * town.WTDmean * pars.pumpenergyint)
+            / C.pump_eff
         )
-        * kWh_cost
-        * town["GridDist"]
+        * C.kWh_cost
+        * town.GridDist
     )
 
-    revenue = crop_production * pars["crop_price"]
+    revenue = crop_production * pars.crop_price
     profit = revenue - transp_cost - irrig_cost
 
     tech = "agri" if crop_production > 0.5 else "none"
@@ -51,3 +84,9 @@ def model(town, pars):
         profit=max(0, profit),
         tech=tech,
     )
+
+
+def entry(town: dict, pars: dict) -> Result:
+    t = Town(**{k: v for k, v in town.items() if k in Town._fields})
+    p = Pars(**{k: v for k, v in pars.items() if k in Pars._fields})
+    return model(t, p)
