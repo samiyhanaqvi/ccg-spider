@@ -20,7 +20,7 @@ keyCounties = [
 ]
 
 
-def constrain_output(town, pars):
+def constrain_output(town: dict, pars: dict) -> tuple[float, str]:
     """
     * Calculate output and farm_type.
     * All major constraints and decisions about technology should be here.
@@ -70,7 +70,7 @@ def constrain_output(town, pars):
     return fish_output, farm_type
 
 
-def npv(yrs, r):
+def npv(yrs: int, r: float) -> float:
     """
     * Calculate NPV multiplier for given number of years and rate.
     *
@@ -80,13 +80,13 @@ def npv(yrs, r):
     * @returns:float
     *   NPV in USD/yr
     """
-    tot = 0
+    tot = 0.0
     for i in range(int(yrs)):
         tot += 1 / (1 + r) ** i
     return tot
 
 
-def get_road_type(town, pars, farm_type, fish_output):
+def get_road_type(town: dict, pars: dict, farm_type: str, fish_output: float) -> str:
     """
     * Get road type.
     *
@@ -105,7 +105,7 @@ def get_road_type(town, pars, farm_type, fish_output):
         return "earth"
 
 
-def get_road_cap_cost(town, needed):
+def get_road_cap_cost(town: dict, needed: str) -> float:
     """
     * @returns:float
     *   USD/km
@@ -119,14 +119,14 @@ def get_road_cap_cost(town, needed):
     # cost = 414_962
     # elif town["road_type"] == "earth" and needed == "paved":
     # cost = 507_228
-    cost = 92_266  # this is just because of the missing data above!
+    cost = 92_266.0  # this is just because of the missing data above!
 
     if town["road_dist"] < 10:
         cost *= 1.3
     return cost
 
 
-def get_road_maintenance(needed):
+def get_road_maintenance(needed: str) -> int:
     """
     * @returns:float
     *   USD/km/yr
@@ -139,7 +139,7 @@ def get_road_maintenance(needed):
     return maintenance
 
 
-def get_land_required(farm_type):
+def get_land_required(farm_type: str) -> float:
     """
     * @returns:float
     *   acres/ton
@@ -150,7 +150,7 @@ def get_land_required(farm_type):
         return 0.83
 
 
-def get_land_rent(pars, farm_type):
+def get_land_rent(pars: dict, farm_type: str) -> float:
     """
     * @returns:float
     *   USD/ton/yr
@@ -158,11 +158,11 @@ def get_land_rent(pars, farm_type):
     land_required = get_land_required(farm_type)
     land_value = 4000  # USD/acre
     land_cost = land_required * land_value  # USD/ton
-    land_rent = land_cost * pars["interest_rate"]  # USD/ton/yr
+    land_rent = land_cost * float(pars["interest_rate"])  # USD/ton/yr
     return land_rent
 
 
-def get_elec_capex(town, pars):
+def get_elec_capex(town: dict, pars: dict) -> float:
     """
     * @returns:float
     *   USD
@@ -174,23 +174,25 @@ def get_elec_capex(town, pars):
         # close enough to extend grid
         mv_cost_pkm = 15_000  # USD/km2
         conn_cost_phh = 4800  # USD/hh
-        mv_cost = mv_cost_pkm * town["grid_dist"]  # USD
-        conn_cost = conn_cost_phh * town["hhs"]  # USD
+        mv_cost = mv_cost_pkm * float(town["grid_dist"])  # USD
+        conn_cost = conn_cost_phh * int(town["hhs"])  # USD
         return mv_cost + conn_cost
     else:
-        kw_needed = town["hhs"] * 0.2  # kW
+        kw_needed = int(town["hhs"]) * 0.2  # kW
         conn_cost_phh = 500  # USD/hh
-        mg_cost = pars["mg_cost_pkw"] * kw_needed  # USD
-        conn_cost = conn_cost_phh * town["hhs"]  # USD
+        mg_cost = float(pars["mg_cost_pkw"]) * kw_needed  # USD
+        conn_cost = conn_cost_phh * int(town["hhs"])  # USD
         return mg_cost + conn_cost
 
 
-def get_elec_cost_for_farm(town, pars):
+def get_elec_cost_for_farm(town: dict, pars: dict) -> float:
     """
     * @returns:float
     *   USD/ton/yr
     """
-    total_power_req = max(2, pars["ice_power"] + pars["aeration_power"])  # kW/ton
+    total_power_req = max(
+        2, float(pars["ice_power"] + pars["aeration_power"])
+    )  # kW/ton
     if town["grid_dist"] < 1:
         # already grid-connected
         return 0
@@ -198,12 +200,12 @@ def get_elec_cost_for_farm(town, pars):
         # close enough to extend grid
         return 0
     else:
-        mg_cap_cost = pars["mg_cost_pkw"] * total_power_req
+        mg_cap_cost = float(pars["mg_cost_pkw"]) * total_power_req
         mg_repayment = mg_cap_cost / npv(pars["duration"], pars["interest_rate"])
         return mg_repayment
 
 
-def get_farm_cap_cost_annual(pars, farm_type):
+def get_farm_cap_cost_annual(pars: dict, farm_type: str) -> float:
     """
     * @returns:float
     *   USD/ton/yr
@@ -215,18 +217,18 @@ def get_farm_cap_cost_annual(pars, farm_type):
     return farm_annual
 
 
-def get_transport_costs(town):
+def get_transport_costs(town: dict) -> float:
     """
     * @returns:float
     *   USD/ton/yr
     """
-    urban_to_city = town["city_dist"] - town["urban_dist"]
+    urban_to_city = float(town["city_dist"] - town["urban_dist"])
     short_dist_flat = 7.88  # USD/ton
     short_dist_spec = 1.214  # USD/ton/km
     long_dist_flat = 13.54  # USD/ton
     long_dist_spec = 0.086  # USD/ton/km
-    transport_to_urban = (
-        short_dist_flat + short_dist_spec * town["urban_dist"]
+    transport_to_urban = short_dist_flat + short_dist_spec * float(
+        town["urban_dist"]
     )  # USD/ton
     transport_to_city = long_dist_flat + long_dist_spec * urban_to_city  # USD/ton
     short_dist_transport_multiplier = 1.5  # to account for ice and fish
@@ -240,14 +242,14 @@ def get_transport_costs(town):
     return transport_cost_urban + transport_cost_city  # USD/ton/yr
 
 
-def get_revenue(pars, farm_type):
-    fish_price = pars["fish_price"]
+def get_revenue(pars: dict, farm_type: str) -> float:
+    fish_price = float(pars["fish_price"])
     if farm_type == "pond":
         fish_price *= 0.75
     return fish_price
 
 
-def get_equipment_costs(pars):
+def get_equipment_costs(pars: dict) -> float:
     """
     * @returns:float
     *   USD/ton/yr
@@ -261,20 +263,22 @@ def get_equipment_costs(pars):
     return equipment_annual
 
 
-def get_running_costs(pars, farm_type):
+def get_running_costs(pars: dict, farm_type: str) -> float:
     """
     * @returns:float
     *   USD/ton
     """
     aeration_use = 10  # hours
-    elec_aeration = aeration_use * pars["aeration_power"] * 365  # kWh/ton/yr of fish
+    elec_aeration = (
+        aeration_use * float(pars["aeration_power"]) * 365
+    )  # kWh/ton/yr of fish
 
     elec_cost_to_farm = 0.25  # USD/kWh
     cost_feed = 1375  # USD/ton
     cost_labor = 150.7  # USD/ton
     cost_fingerlings = 500  # USD/ton
     cost_misc = 48.02 if farm_type == "cage" else 226.67  # USD/ton
-    cost_ice = elec_cost_to_farm * pars["elec_ice"]  # USD/ton
+    cost_ice = elec_cost_to_farm * float(pars["elec_ice"])  # USD/ton
     cost_aeration = elec_cost_to_farm * elec_aeration  # USD/ton
     total_running_costs = (
         cost_feed + cost_labor + cost_fingerlings + cost_misc + cost_ice + cost_aeration
@@ -282,7 +286,7 @@ def get_running_costs(pars, farm_type):
     return total_running_costs
 
 
-def get_gov_costs(town, pars, road_type_needed):
+def get_gov_costs(town: dict, pars: dict, road_type_needed: str) -> tuple[float, float]:
     """
     * @returns:Array[float, float]
     *   costs in USD
@@ -295,10 +299,10 @@ def get_gov_costs(town, pars, road_type_needed):
     road_maintenance = road_maintenance_cost * town["road_dist"]  # USD/yr
     gov_costs = elec_capex + road_capex  # USD
     gov_annual = road_maintenance  # USD/yr
-    return [gov_costs, gov_annual]
+    return gov_costs, gov_annual
 
 
-def get_social_benefit(town):
+def get_social_benefit(town: dict) -> float:
     """
     * @returns:float
     *   USD/yr
@@ -306,7 +310,7 @@ def get_social_benefit(town):
     energy_cooking = 1875  # kWh/yr
     energy_lights = 21.9  # kWh/yr
     energy_phh = energy_cooking + energy_lights  # kWh/yr
-    energy_total = energy_phh * town["hhs"]  # kWh
+    energy_total = energy_phh * float(town["hhs"])  # kWh
     cooking_co2_saved = 1.47  # kgCO2/kWh
     social_carbon_cost = 0.15  # USD/kgCO2/yr
     health_benefits = 0.1  # USD/kgCO2/yr
@@ -315,7 +319,7 @@ def get_social_benefit(town):
     return total_social_benefit
 
 
-def model(town, pars):
+def model(town: dict, pars: dict) -> dict:
     """
     * Main modelling entrypoint.
     * Other functions in this file should not be called directly.
@@ -376,13 +380,13 @@ def model(town, pars):
             gov_annual=max(0, gov_annual),
             social=max(0, total_social_benefit),
         )
-    else:
-        return dict(
-            tech="none",
-            fish_output=0,
-            revenue=0,
-            profit=0,
-            gov_costs=0,
-            gov_annual=0,
-            social=0,
-        )
+
+    return dict(
+        tech="none",
+        fish_output=0,
+        revenue=0,
+        profit=0,
+        gov_costs=0,
+        gov_annual=0,
+        social=0,
+    )
