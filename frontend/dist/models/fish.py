@@ -1,5 +1,55 @@
-# key counties that are always included
-# (bypassing water/precip requirements)
+from typing import TypedDict
+
+Number = float | int
+
+
+class Town(TypedDict):
+    pop: Number
+    precip: Number
+    grid_dist: Number
+    lake_dist: Number
+    water_dist: Number
+    river_dist: Number
+    road_dist: Number
+    urban_dist: Number
+    city_dist: Number
+    adm1: str
+    index: Number
+    hhs: Number
+
+
+class Pars(TypedDict):
+    grid_cost: Number
+    road_cost: Number
+    duration: Number
+    interest_rate: Number
+    fish_price: Number
+    max_fish_output: Number
+    labor_per_hh: Number
+    min_pop: Number
+    max_pop: Number
+    max_lake_dist: Number
+    max_water_dist: Number
+    min_precip: Number
+    truck_econ_multi: Number
+    traffic_pp: Number
+    mg_cost_pkw: Number
+    elec_ice: Number
+    ice_power: Number
+    aeration_power: Number
+
+
+class Result(TypedDict):
+    tech: str
+    fish_output: Number
+    revenue: Number
+    profit: Number
+    gov_costs: Number
+    gov_annual: Number
+    social: Number
+
+
+# key counties that are always included (bypassing water/precip requirements)
 keyCounties = [
     "homa bay",
     "migori",
@@ -20,17 +70,14 @@ keyCounties = [
 ]
 
 
-def constrain_output(town: dict, pars: dict) -> tuple[float, str]:
+def constrain_output(town: Town, pars: Pars) -> tuple[Number, str]:
     """
-    * Calculate output and farm_type.
-    * All major constraints and decisions about technology should be here.
-    *
-    * @param:Object town Location-specific
-    * @param:Object pars User-entered
-    *
-    * @returns:Array[float, str]
-    *   fish_output in ton/yr
-    *   farm_type as a string
+    Calculate output and farm_type.
+    All major constraints and decisions about technology should be here.
+
+    Returns:
+      fish_output in ton/yr
+      farm_type as a string
     """
     farm_type = "none"
     if town["lake_dist"] < pars["max_lake_dist"]:
@@ -42,13 +89,13 @@ def constrain_output(town: dict, pars: dict) -> tuple[float, str]:
         or town["adm1"].lower() in keyCounties
     ):
         farm_type = "pond"
-    fish_output = 0
+    fish_output = 0.0
     if (
         town["precip"] > pars["min_precip"]
         and town["pop"] > pars["min_pop"]
         and town["pop"] < pars["max_pop"]
     ):
-        max_from_farm = 0
+        max_from_farm = 0.0
         if farm_type == "cage":
             max_from_farm = pars["max_fish_output"]
         elif farm_type == "pond":
@@ -70,15 +117,11 @@ def constrain_output(town: dict, pars: dict) -> tuple[float, str]:
     return fish_output, farm_type
 
 
-def npv(yrs: int, r: float) -> float:
+def npv(yrs: Number, r: Number) -> Number:
     """
-    * Calculate NPV multiplier for given number of years and rate.
-    *
-    * @param:int yrs Number of years
-    * @param:float r Interest rate as a decimal
-    *
-    * @returns:float
-    *   NPV in USD/yr
+    Calculate NPV multiplier for given number of years and rate.
+
+    Returns: NPV in USD/yr
     """
     tot = 0.0
     for i in range(int(yrs)):
@@ -86,12 +129,11 @@ def npv(yrs: int, r: float) -> float:
     return tot
 
 
-def get_road_type(town: dict, pars: dict, farm_type: str, fish_output: float) -> str:
+def get_road_type(town: Town, pars: Pars, farm_type: str, fish_output: Number) -> str:
     """
-    * Get road type.
-    *
-    * @returns:str
-    *   road_type as string, one of: paved, gravel, earth
+    Get road type.
+
+    Returns: road_type as string, one of: paved, gravel, earth
     """
     # type
     traffic = town["pop"] / pars["traffic_pp"]  # vehicles/day
@@ -105,10 +147,9 @@ def get_road_type(town: dict, pars: dict, farm_type: str, fish_output: float) ->
         return "earth"
 
 
-def get_road_cap_cost(town: dict, needed: str) -> float:
+def get_road_cap_cost(town: Town, needed: str) -> Number:
     """
-    * @returns:float
-    *   USD/km
+    Returns: USD/km
     """
     # TODO
     # hex doesn't have 'road_type' property
@@ -126,10 +167,9 @@ def get_road_cap_cost(town: dict, needed: str) -> float:
     return cost
 
 
-def get_road_maintenance(needed: str) -> int:
+def get_road_maintenance(needed: str) -> Number:
     """
-    * @returns:float
-    *   USD/km/yr
+    Returns: USD/km/yr
     """
     maintenance = 0
     if needed == "gravel":
@@ -139,10 +179,9 @@ def get_road_maintenance(needed: str) -> int:
     return maintenance
 
 
-def get_land_required(farm_type: str) -> float:
+def get_land_required(farm_type: str) -> Number:
     """
-    * @returns:float
-    *   acres/ton
+    Returns: acres/ton
     """
     if farm_type == "cage":
         return 0.01
@@ -150,22 +189,20 @@ def get_land_required(farm_type: str) -> float:
         return 0.83
 
 
-def get_land_rent(pars: dict, farm_type: str) -> float:
+def get_land_rent(pars: Pars, farm_type: str) -> Number:
     """
-    * @returns:float
-    *   USD/ton/yr
+    Returns: USD/ton/yr
     """
     land_required = get_land_required(farm_type)
     land_value = 4000  # USD/acre
     land_cost = land_required * land_value  # USD/ton
-    land_rent = land_cost * float(pars["interest_rate"])  # USD/ton/yr
+    land_rent = land_cost * pars["interest_rate"]  # USD/ton/yr
     return land_rent
 
 
-def get_elec_capex(town: dict, pars: dict) -> float:
+def get_elec_capex(town: Town, pars: Pars) -> Number:
     """
-    * @returns:float
-    *   USD
+    Returns: USD
     """
     if town["grid_dist"] < 1:
         # already grid-connected
@@ -174,25 +211,22 @@ def get_elec_capex(town: dict, pars: dict) -> float:
         # close enough to extend grid
         mv_cost_pkm = 15_000  # USD/km2
         conn_cost_phh = 4800  # USD/hh
-        mv_cost = mv_cost_pkm * float(town["grid_dist"])  # USD
-        conn_cost = conn_cost_phh * int(town["hhs"])  # USD
+        mv_cost = mv_cost_pkm * town["grid_dist"]  # USD
+        conn_cost = conn_cost_phh * town["hhs"]  # USD
         return mv_cost + conn_cost
     else:
-        kw_needed = int(town["hhs"]) * 0.2  # kW
+        kw_needed = town["hhs"] * 0.2  # kW
         conn_cost_phh = 500  # USD/hh
-        mg_cost = float(pars["mg_cost_pkw"]) * kw_needed  # USD
-        conn_cost = conn_cost_phh * int(town["hhs"])  # USD
+        mg_cost = pars["mg_cost_pkw"] * kw_needed  # USD
+        conn_cost = conn_cost_phh * town["hhs"]  # USD
         return mg_cost + conn_cost
 
 
-def get_elec_cost_for_farm(town: dict, pars: dict) -> float:
+def get_elec_cost_for_farm(town: Town, pars: Pars) -> Number:
     """
-    * @returns:float
-    *   USD/ton/yr
+    Returns: USD/ton/yr
     """
-    total_power_req = max(
-        2, float(pars["ice_power"] + pars["aeration_power"])
-    )  # kW/ton
+    total_power_req = max(2, pars["ice_power"] + pars["aeration_power"])  # kW/ton
     if town["grid_dist"] < 1:
         # already grid-connected
         return 0
@@ -200,15 +234,14 @@ def get_elec_cost_for_farm(town: dict, pars: dict) -> float:
         # close enough to extend grid
         return 0
     else:
-        mg_cap_cost = float(pars["mg_cost_pkw"]) * total_power_req
+        mg_cap_cost = pars["mg_cost_pkw"] * total_power_req
         mg_repayment = mg_cap_cost / npv(pars["duration"], pars["interest_rate"])
         return mg_repayment
 
 
-def get_farm_cap_cost_annual(pars: dict, farm_type: str) -> float:
+def get_farm_cap_cost_annual(pars: Pars, farm_type: str) -> Number:
     """
-    * @returns:float
-    *   USD/ton/yr
+    Returns: USD/ton/yr
     """
     farm_cap_cost = 138.89 if farm_type == "cage" else 1950
     farm_annual = farm_cap_cost / npv(
@@ -217,18 +250,17 @@ def get_farm_cap_cost_annual(pars: dict, farm_type: str) -> float:
     return farm_annual
 
 
-def get_transport_costs(town: dict) -> float:
+def get_transport_costs(town: Town) -> Number:
     """
-    * @returns:float
-    *   USD/ton/yr
+    Returns: USD/ton/yr
     """
-    urban_to_city = float(town["city_dist"] - town["urban_dist"])
+    urban_to_city = town["city_dist"] - town["urban_dist"]
     short_dist_flat = 7.88  # USD/ton
     short_dist_spec = 1.214  # USD/ton/km
     long_dist_flat = 13.54  # USD/ton
     long_dist_spec = 0.086  # USD/ton/km
-    transport_to_urban = short_dist_flat + short_dist_spec * float(
-        town["urban_dist"]
+    transport_to_urban = (
+        short_dist_flat + short_dist_spec * town["urban_dist"]
     )  # USD/ton
     transport_to_city = long_dist_flat + long_dist_spec * urban_to_city  # USD/ton
     short_dist_transport_multiplier = 1.5  # to account for ice and fish
@@ -242,17 +274,16 @@ def get_transport_costs(town: dict) -> float:
     return transport_cost_urban + transport_cost_city  # USD/ton/yr
 
 
-def get_revenue(pars: dict, farm_type: str) -> float:
-    fish_price = float(pars["fish_price"])
+def get_revenue(pars: Pars, farm_type: str) -> Number:
+    fish_price = pars["fish_price"]
     if farm_type == "pond":
         fish_price *= 0.75
     return fish_price
 
 
-def get_equipment_costs(pars: dict) -> float:
+def get_equipment_costs(pars: Pars) -> Number:
     """
-    * @returns:float
-    *   USD/ton/yr
+    Returns: USD/ton/yr
     """
     capex_ice = 1000  # USD/ton capacity
     capex_aeration = 200  # USD/ton capacity
@@ -263,22 +294,19 @@ def get_equipment_costs(pars: dict) -> float:
     return equipment_annual
 
 
-def get_running_costs(pars: dict, farm_type: str) -> float:
+def get_running_costs(pars: Pars, farm_type: str) -> Number:
     """
-    * @returns:float
-    *   USD/ton
+    Returns: USD/ton
     """
     aeration_use = 10  # hours
-    elec_aeration = (
-        aeration_use * float(pars["aeration_power"]) * 365
-    )  # kWh/ton/yr of fish
+    elec_aeration = aeration_use * pars["aeration_power"] * 365  # kWh/ton/yr of fish
 
     elec_cost_to_farm = 0.25  # USD/kWh
     cost_feed = 1375  # USD/ton
     cost_labor = 150.7  # USD/ton
     cost_fingerlings = 500  # USD/ton
     cost_misc = 48.02 if farm_type == "cage" else 226.67  # USD/ton
-    cost_ice = elec_cost_to_farm * float(pars["elec_ice"])  # USD/ton
+    cost_ice = elec_cost_to_farm * pars["elec_ice"]  # USD/ton
     cost_aeration = elec_cost_to_farm * elec_aeration  # USD/ton
     total_running_costs = (
         cost_feed + cost_labor + cost_fingerlings + cost_misc + cost_ice + cost_aeration
@@ -286,11 +314,11 @@ def get_running_costs(pars: dict, farm_type: str) -> float:
     return total_running_costs
 
 
-def get_gov_costs(town: dict, pars: dict, road_type_needed: str) -> tuple[float, float]:
+def get_gov_costs(town: Town, pars: Pars, road_type_needed: str) -> tuple[Number, Number]:
     """
-    * @returns:Array[float, float]
-    *   costs in USD
-    *   annual in USD/yr
+    Returns:
+      costs in USD
+      annual in USD/yr
     """
     elec_capex = get_elec_capex(town, pars)
     road_cap_cost = get_road_cap_cost(town, road_type_needed)  # USD/km
@@ -302,15 +330,14 @@ def get_gov_costs(town: dict, pars: dict, road_type_needed: str) -> tuple[float,
     return gov_costs, gov_annual
 
 
-def get_social_benefit(town: dict) -> float:
+def get_social_benefit(town: Town) -> Number:
     """
-    * @returns:float
-    *   USD/yr
+    Returns: USD/yr
     """
     energy_cooking = 1875  # kWh/yr
     energy_lights = 21.9  # kWh/yr
     energy_phh = energy_cooking + energy_lights  # kWh/yr
-    energy_total = energy_phh * float(town["hhs"])  # kWh
+    energy_total = energy_phh * town["hhs"]  # kWh
     cooking_co2_saved = 1.47  # kgCO2/kWh
     social_carbon_cost = 0.15  # USD/kgCO2/yr
     health_benefits = 0.1  # USD/kgCO2/yr
@@ -319,14 +346,10 @@ def get_social_benefit(town: dict) -> float:
     return total_social_benefit
 
 
-def model(town: dict, pars: dict) -> dict:
+def model(town: Town, pars: Pars) -> Result:
     """
-    * Main modelling entrypoint.
-    * Other functions in this file should not be called directly.
-    *
-    * @param:Object town Location-specific data
-    * @param:Object pars User-entered parameters
-    * @returns:Object Results for farm_type, fish_output etc.
+    Main modelling entrypoint.
+    Other functions in this file should not be called directly.
     """
     town["hhs"] = town["pop"] / 5
     # Some decisions
