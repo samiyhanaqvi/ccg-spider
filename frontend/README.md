@@ -14,68 +14,43 @@ npm run dev
 Then navigate to http://localhost:3002/.
 
 ## Configuring a model
-**NB**: You can see the examples in [dist/models/example](dist/models/example).
-These are incomplete, but have more comments than the other files.
-
 The model structure looks as follows:
 ```
-dist/models/
-├── index.js
-├── fish
-│   ├── index.js
-│   ├── config.js
-│   ├── hex.js
-│   └── model.js
-└── irri
-    └── as above...
+dist/
+├── config
+│   ├── fish.yml
+│   └── ...
+├── data
+│   ├── fish.geojson
+│   └── ...
+├── models
+│   ├── fish.py
+│   └── ...
 ```
 
 To add a model, the following steps are needed:
-1. Create a new directory for the model under `models`, such as `dist/models/protein`.
-2. Edit [dist/models/index.js](dist/models/index.js) with a new line as follows:
-```javascript
-export {default as protein} from "./protein/index.js";
-```
-3. Recreate all the files (`index.js`, `config.js`, `hex.js`, `model.js`) from one of the existing models.
-Place these in your new directory.
-4. Navigate to http://localhost:3002/protein to see what it looks like.
+1. Create a new `GeoJSON` hexagon file, eg `dist/data/mining.geojson`.
+Use the instructions under [prep](../[prep/) to do this.
+2. Write your `Python` model code and save it to eg `dist/models/mining.python`.
+3. Create a new `YAML` config, eg `dist/config/mining.yml`.
+You can base this on the [dist/config/example.yml](./dist/config/example.yml) file, and follow the instructions there for the necessary fields.
+Make sure it correctly points to the hexagon and model files you just created.
 
-### Notes on hex.js
-There are a few requirements for the `hex.js` files.
-
-The snippet below shows an example with only one hexagon.
-Some parts are omitted with `...` for brevity.
-Essential features:
-1. An integer `id` field at the same level as `type` and `properties`.
-2. An integer `index` field as one of the `properties`, that must match the `id`.
-3. Integer fields `n0` through `n5` that refer to neighbouring hexagons.
+### Notes on the hexagon file
+There are a few `properties` that must be included on every `Feature` in the hexagons `GeoJSON` file:
+1. An integer `index` field as one of the `properties`, that must match the `id`.
+2. Integer fields `n0` through `n5` that refer to neighbouring hexagons.
 (This is only needed if any drawing will be used.)
 
-```javascript
-export default {
-  type: "FeatureCollection",
-  features: [
-    {
-      id: 0,
-      type: "Feature",
-      properties: {
-        index: 0,
-        n0: 450,
-        n1: 307,
-        n2: 270,
-        n3: 2004,
-        n4: 1695,
-        n5: 1289,
-        city_dist: 153.130065,
-        farm_type: "pond",
-        ...
-      },
-      geometry: {
-        type: "Polygon",
-        coordinates: [...],
-      },
-    },
-    ...
-  ]
+The snippet below shows example properties for a single hexagon Feature:
+```json
+"properties": {
+    "index": 0,
+    "n0": 450,
+    "n1": 307,
+    "n2": 270,
+    "n3": 2004,
+    "n4": 1695,
+    "n5": 1289
 }
 ```
