@@ -17,8 +17,8 @@ export const makeMap = (config, app, model) => {
   const map = new mapboxgl.Map({
     container: "map",
     style: "mapbox://styles/carderne/cl0rvsxn200ce14jz3q5j5hco?fresh=true",
-    center: config.loc.center,
-    zoom: config.loc.zoom,
+    center: config.center,
+    zoom: config.zoom,
   });
 
   map.on("load", () => {

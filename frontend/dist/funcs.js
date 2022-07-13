@@ -1,11 +1,5 @@
 /* global turf loadPyodide */
 
-export const getConfig = (configs) => {
-  let path = window.location.pathname.split("/")[1];
-  if (!(path in configs)) path = "fish";
-  return configs[path];
-};
-
 export const getHex = async (config, infra, parVals, model) => {
   let hex = await fetch(config.data).then((res) => res.json());
   infra.forEach((obj) => {

@@ -1,9 +1,7 @@
-/* global Vue _ */
+/* global Vue _ jsyaml */
 
-import * as configs from "./config/index.js";
 import {
   getModel,
-  getConfig,
   getHex,
   updateHex,
   reloadHex,
@@ -22,7 +20,9 @@ import {
 
 import { makeMap, makeDraw } from "./map.js";
 
-const init = (config) => {
+const validPaths = ["fish", "irri", "hydro"];
+
+const initApp = (config) => {
   Vue.createApp({
     data() {
       return {
@@ -127,5 +127,10 @@ const init = (config) => {
   }).mount("#sidebar");
 };
 
-const config = getConfig(configs);
-init(config);
+(async () => {
+  let path = window.location.pathname.split("/")[1];
+  path = validPaths.includes(path) ? path : "fish";
+  const fishYaml = await (await fetch(`./config/${path}.yml`)).text();
+  const config = jsyaml.load(fishYaml);
+  initApp(config);
+})();
