@@ -27,6 +27,7 @@ const initApp = (config) => {
     data() {
       return {
         hex: {},
+        name: config.name,
         pars: config.pars,
         infra: config.infra,
         mapLoaded: false,
