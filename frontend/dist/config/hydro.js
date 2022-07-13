@@ -1,30 +1,21 @@
-const center = [37.7, 0.31];
-const zoom = 6;
-const loc = { center, zoom };
-
-const hexSize = 9; // km
-
 const popup = [
   {
     col: "cost_h2",
     label: "Hydrogen costs",
     unit: "€/kg",
-    fmt: 2, // this should be the number of decimal places
-            // or false for categorical labels
+    fmt: 2,
   },
   {
     col: "cost_h2_ocean",
     label: "Hydrogen costs ocean",
     unit: "€/kg",
-    fmt: 2, // this should be the number of decimal places
-            // or false for categorical labels
+    fmt: 2,
   },
   {
     col: "pv",
     label: "PV output",
     unit: "kWh/kWp per day",
-    fmt: 2, // this should be the number of decimal places
-            // or false for categorical labels
+    fmt: 2,
   },
   {
     col: "wind",
@@ -47,12 +38,6 @@ const infra = [
     type: "line",
     color: "#FF0000",
   },
-  //{
-  //  col: "road_dist",
-  //  label: "Road",
-  //  type: "line",
-  //  color: "#0000FF",
-  //},
   {
     col: "mombasa_dist",
     label: "Demand site",
@@ -113,13 +98,13 @@ const pars = [
     max: 2,
     val: 0.9,
     unit: "€/100km/kg",
-  }, 
+  },
   {
     col: "elec_water_treatment",
     label: "Energy demand water treatment",
     min: 0,
     max: 1,
-    val: 0.2,                 //random assumption so far [kWh/m3] see: https://www.researchgate.net/publication/289707090_Energy_consumption_and_economic_cost_of_typical_wastewater_treatment_systems_in_Shenzhen_China
+    val: 0.2, // random assumption so far [kWh/m3] http://dx.doi.org/10.1016/j.jclepro.2015.12.109
     unit: "kWh/m3",
   },
   {
@@ -127,7 +112,7 @@ const pars = [
     label: "Energy demand ocean water treatment",
     min: 1,
     max: 6,
-    val: 3.7,                 //https://www.pnas.org/doi/epdf/10.1073/pnas.1902335116
+    val: 3.7, // https://www.pnas.org/doi/epdf/10.1073/pnas.1902335116
     unit: "kWh/m3",
   },
   {
@@ -135,7 +120,7 @@ const pars = [
     label: "PV Module size",
     min: 1,
     max: 10,
-    val: 6,                 
+    val: 6,
     unit: "m2/kWp",
   },
   {
@@ -143,16 +128,16 @@ const pars = [
     label: "Wind turbine distance",
     min: 1,
     max: 10,
-    val: 6,                 
-    unit: "* Rotor Diameter",  //https://energyfollower.com/wind-turbine-spacing/
+    val: 6,
+    unit: "* Rotor Diameter", // https://energyfollower.com/wind-turbine-spacing/
   },
   {
     col: "min_area",
     label: "Min. available area to construct",
     min: 1,
     max: 100,
-    val: 10,                 
-    unit: "km2",  
+    val: 10,
+    unit: "km2",
   },
 ];
 
@@ -247,55 +232,14 @@ const attrs = [
     minCol: "hsl(30, 100%, 23%)",
     maxCol: "hsl(30, 29%, 93%)",
   },
-  //{
-  //  col: "turbine_output",
-  //  label: "Turbine output",
-  //  min: 1,
-  //  max: 20,
-  //  minCol: "hsl(255, 29%, 93%)",
-  //  maxCol: "hsl(255, 100%, 23%)",
-  //},
-
-  //{
-  //  col: "water_dist",
-  //  label: "Distance to water",
-  //  min: 1,
-  //  max: 10000,
-  //  minCol: "hsl(255, 29%, 93%)",
-  //  maxCol: "hsl(255, 100%, 23%)",
-  //},
-  //{
-  //  col: "mombasa_dist",
-  //  label: "Distance to mombasa",
-  //  min: 1,
-  //  max: 10000,
-  //  minCol: "hsl(255, 29%, 93%)",
-  //  maxCol: "hsl(255, 100%, 23%)",
-  //},
-  //{
-  //  col: "ocean_dist",
-  //  label: "Distance to ocean",
-  //  min: 1,
-  //  max: 10000,
-  //  minCol: "hsl(255, 29%, 93%)",
-  //  maxCol: "hsl(255, 100%, 23%)",
-  //},
-  //{
-  //  col: "grid_dist",
-  //  label: "Distance to grid",
-  //  min: 1,
-  //  max: 10000,
-  //  minCol: "hsl(255, 29%, 93%)",
-  //  maxCol: "hsl(255, 100%, 23%)",
-  //},
-  //{
-  //  col: "rest_area",
-  //  label: "Restricted area [km2]",
-  //  min: 1,
-  //  max: 10000,
-  //  minCol: "hsl(255, 29%, 93%)",
-  //  maxCol: "hsl(255, 100%, 23%)",
-  //},
 ];
 
-export default { loc, hexSize, popup, infra, pars, attrs };
+const name = "hydro";
+const model = "models/hydro.py";
+const data = "data/hydro.geojson";
+const center = [37.7, 0.31];
+const zoom = 6;
+const loc = { center, zoom };
+const hexSize = 9; // km
+
+export default { name, model, data, loc, hexSize, popup, infra, pars, attrs };

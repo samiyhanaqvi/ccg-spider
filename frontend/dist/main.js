@@ -1,9 +1,9 @@
 /* global Vue _ */
 
-import * as models from "./models/index.js";
+import * as configs from "./config/index.js";
 import {
   getModel,
-  getPath,
+  getConfig,
   getHex,
   updateHex,
   reloadHex,
@@ -22,12 +22,11 @@ import {
 
 import { makeMap, makeDraw } from "./map.js";
 
-const init = (path, config) => {
+const init = (config) => {
   Vue.createApp({
     data() {
       return {
         hex: {},
-        path,
         pars: config.pars,
         infra: config.infra,
         mapLoaded: false,
@@ -84,9 +83,9 @@ const init = (path, config) => {
     created: async function () {
       this.debouncedUpdate = _.debounce(this.update, 500);
 
-      this.model = await getModel(models, path);
+      this.model = await getModel(config);
 
-      this.hex = await getHex(path, this.infra, this.parVals, this.model);
+      this.hex = await getHex(config, this.infra, this.parVals, this.model);
       this.map = makeMap(config, this, this.model);
       this.draw = makeDraw(this.map, this, config, this.model);
     },
@@ -119,15 +118,14 @@ const init = (path, config) => {
         reloadHex(this.map, this.hex, this.mapLoaded);
       },
       downloadHex: function () {
-        downloadHex(this.hex, path);
+        downloadHex(this.hex, config);
       },
       downloadLines: function () {
-        downloadLines(this.drawnLines, path);
+        downloadLines(this.drawnLines, config);
       },
     },
   }).mount("#sidebar");
 };
 
-const path = getPath(models);
-const config = models[path];
-init(path, config);
+const config = getConfig(configs);
+init(config);

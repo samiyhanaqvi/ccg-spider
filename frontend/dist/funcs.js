@@ -1,13 +1,13 @@
 /* global turf loadPyodide */
 
-export const getPath = (models) => {
+export const getConfig = (configs) => {
   let path = window.location.pathname.split("/")[1];
-  if (!(path in models)) path = "fish";
-  return path;
+  if (!(path in configs)) path = "fish";
+  return configs[path];
 };
 
-export const getHex = async (path, infra, parVals, model) => {
-  let hex = await fetch(`models/${path}/hex.geojson`).then((res) => res.json());
+export const getHex = async (config, infra, parVals, model) => {
+  let hex = await fetch(config.data).then((res) => res.json());
   infra.forEach((obj) => {
     hex = makeOrigProps(hex, obj.col);
   });
@@ -145,11 +145,11 @@ export const layerPaint = (i) =>
         "circle-color": i.color,
       };
 
-export const downloadHex = (hex, path) => {
-  downloadFc(hex, path, "spider_hex");
+export const downloadHex = (hex, config) => {
+  downloadFc(hex, config.name, "spider_hex");
 };
 
-export const downloadLines = (drawnLines, path) => {
+export const downloadLines = (drawnLines, config) => {
   const lines = Object.entries(drawnLines).map(([type, arr]) => {
     const feats = arr.map((ft) => {
       ft.properties.type = type;
@@ -158,15 +158,15 @@ export const downloadLines = (drawnLines, path) => {
     return feats;
   });
   const fc = turf.featureCollection(lines.flat());
-  downloadFc(fc, path, "spider_lines");
+  downloadFc(fc, config.name, "spider_lines");
 };
 
-const downloadFc = (fc, path, name) => {
+const downloadFc = (fc, name, modelName) => {
   const str = JSON.stringify(fc);
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(str);
   const downloadAnchorNode = document.createElement("a");
   downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", name + "_" + path + ".geojson");
+  downloadAnchorNode.setAttribute("download", name + "_" + modelName + ".geojson");
   document.body.appendChild(downloadAnchorNode);
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
@@ -253,9 +253,9 @@ export const deleteDrawing = (
   reloadHex(map, app.hex, mapLoaded);
 };
 
-export const getModel = async (models, path) => {
+export const getModel = async (config) => {
   const pyodide = await loadPyodide({fullStdLib: false});
-  const pyModelText = await (await fetch(`./models/${path}/model.py`)).text();
+  const pyModelText = await (await fetch(config.model)).text();
   pyodide.runPython(pyModelText);
   const model = pyodide.globals.get("model");
   return (town, pars) =>

@@ -1,16 +1,9 @@
-const center = [37.7, 0.31];
-const zoom = 6;
-const loc = { center, zoom };
-
-const hexSize = 0.5; // km
-
 const popup = [
   {
     col: "WTDmean",
     label: "Groundwater depth",
     unit: "m",
-    fmt: 0, // this should be the number of decimal places
-            // or false for categorical labels
+    fmt: 0,
   },
   {
     col: "GridDist",
@@ -193,4 +186,12 @@ const attrs = [
   },
 ];
 
-export default { loc, hexSize, popup, infra, pars, attrs };
+const name = "irri";
+const model = "models/irri.py";
+const data = "data/irri.geojson";
+const center = [37.7, 0.31];
+const zoom = 6;
+const loc = { center, zoom };
+const hexSize = 0.5; // km
+
+export default { name, model, data, loc, hexSize, popup, infra, pars, attrs };
