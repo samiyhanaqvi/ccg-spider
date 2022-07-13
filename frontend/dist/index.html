@@ -6,17 +6,16 @@
         <meta name="description" content="Analyse High-Impact Econonomic Opportunities">
 
         <title>Spider</title>
-        <script src="vendor/vue.js" defer></script>
-        <script src="vendor/lodash.min.js" defer></script>
-        <script src="vendor/mapbox-gl.js" defer></script>
-        <script src="vendor/turf.min.js" defer></script>
-        <script src="vendor/mapbox-gl-draw.js" defer></script>
-        <link rel="stylesheet" href="vendor/mapbox-gl.css">
-        <link rel="stylesheet" href="vendor/mapbox-gl-draw.css">
         <link rel="stylesheet" href="tw.css">
         <link rel="icon" href="favicon.ico">
-        <!--<script defer src="https://pyscript.net/alpha/pyscript.js"></script>-->
-        <script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+        <link rel="preload" href="vendor/mapbox-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="preload" href="vendor/mapbox-gl-draw.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <script src="vendor/vue.js" defer></script>
+        <script defer src="vendor/lodash.min.js"></script>
+        <script defer src="vendor/mapbox-gl.js"></script>
+        <script defer src="vendor/mapbox-gl-draw.js"></script>
+        <script defer src="vendor/turf.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
     </head>
     <body class="h-screen w-screen flex sm:h-full sm:flex-col">
 
@@ -178,7 +177,6 @@
         <div id="map" class="flex flex-grow sm:h-1/2 sm:flex-grow-0"></div>
 
         <!--Load main script-->
-        <!--<py-script src="./models/hydro/model.py"></py-script>-->
         <script type="module" src="./main.js"></script>
     </body>
 </html>

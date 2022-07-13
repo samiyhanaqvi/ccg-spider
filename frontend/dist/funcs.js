@@ -254,7 +254,7 @@ export const deleteDrawing = (
 };
 
 export const getModel = async (models, path) => {
-  const pyodide = await loadPyodide();
+  const pyodide = await loadPyodide({fullStdLib: false});
   const pyModelText = await (await fetch(`./models/${path}/model.py`)).text();
   pyodide.runPython(pyModelText);
   const model = pyodide.globals.get("model");
