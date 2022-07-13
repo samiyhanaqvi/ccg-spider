@@ -72,9 +72,9 @@ pars:
   - col: "interest_rate"
     label: "Interest rate"
     min: 0
-    max: 100
-    val: 6
-    unit: "%"
+    max: 1
+    val: 0.06
+    unit: ""
   - col: "fish_price"
     label: "Fish sale price"
     min: 0

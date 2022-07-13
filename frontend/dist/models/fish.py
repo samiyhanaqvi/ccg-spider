@@ -325,7 +325,6 @@ def model(town, pars):
     * @returns:Object Results for farm_type, fish_output etc.
     """
     town["hhs"] = town["pop"] / 5
-    pars["interest_rate"] /= 100
     # Some decisions
     fish_output, farm_type = constrain_output(town, pars)  # ton/yr
 
