@@ -129,5 +129,5 @@ const init = (path, config) => {
 };
 
 const path = getPath(models);
-const config = models[path].config;
+const config = models[path];
 init(path, config);

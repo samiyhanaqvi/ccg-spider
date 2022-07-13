@@ -254,21 +254,17 @@ export const deleteDrawing = (
 };
 
 export const getModel = async (models, path) => {
-  if (path != "hydro") {
-    return models[path].model;
-  } else {
-    const pyodide = await loadPyodide();
-    const pyModelText = await (await fetch(`./models/${path}/model.py`)).text();
-    pyodide.runPython(pyModelText);
-    const model = pyodide.globals.get("model");
-    return (town, pars) =>
-      Object.fromEntries(
-        model(
-          pyodide.toPy(convToNumbers(town)),
-          pyodide.toPy(convToNumbers(pars))
-        ).toJs()
-      );
-  }
+  const pyodide = await loadPyodide();
+  const pyModelText = await (await fetch(`./models/${path}/model.py`)).text();
+  pyodide.runPython(pyModelText);
+  const model = pyodide.globals.get("model");
+  return (town, pars) =>
+    Object.fromEntries(
+      model(
+        pyodide.toPy(convToNumbers(town)),
+        pyodide.toPy(convToNumbers(pars))
+      ).toJs()
+    );
 };
 
 const convToNumbers = (obj) => {
