@@ -251,7 +251,7 @@ export const getModel = async (config) => {
   const pyodide = await loadPyodide({fullStdLib: false});
   const pyModelText = await (await fetch(config.model)).text();
   pyodide.runPython(pyModelText);
-  const model = pyodide.globals.get("entry");
+  const model = pyodide.globals.get("model");
   return (town, pars) =>
     Object.fromEntries(
       model(
