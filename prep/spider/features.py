@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import geopandas as gpd
-import h3pandas  # noqa: W
+import h3pandas  # NoQA
 import pandas as pd
 import rasterio
 from rasterio.features import rasterize

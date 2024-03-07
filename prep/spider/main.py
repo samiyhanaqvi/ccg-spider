@@ -1,20 +1,11 @@
 from pathlib import Path
-import warnings
 
-warnings.simplefilter("ignore")  # noqa
+import geopandas as gpd
+import yaml
+from typer import Option, echo, run
 
-import geopandas as gpd  # noqa
-import yaml  # noqa
-from typer import run, echo, Option  # noqa
-
-from spider.features import (  # noqa
-    add_features,
-    add_raster_layer,
-    add_vector_layer,
-    fix_column,
-    create_hex,
-)
-from spider.neighbors import add_neighbors  # noqa
+from spider.features import add_features, create_hex
+from spider.neighbors import add_neighbors
 
 cfg_default = Path(__file__).parents[1] / "config.yml"
 
@@ -56,5 +47,5 @@ def feat(
     geom.to_file(file, driver="GeoJSON")
 
 
-def cli():
+def cli() -> None:
     run(feat)
