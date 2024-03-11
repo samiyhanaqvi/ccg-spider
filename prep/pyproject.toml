@@ -39,8 +39,6 @@ dependencies = [
     "typer >= 0.8",
     "PyYAML ~= 6.0",
     "h3pandas >= 0.2.3",
-    "pygeos >= 0.14",
-    "shapely ~= 2.0",
 ]
 
 [project.optional-dependencies]
